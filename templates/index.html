@@ -1,0 +1,58 @@
+{% extends 'base.html'%}
+
+{% block body%}
+<div class="buffer" style="min-height: 3rem;"></div>
+<div class="card">
+    <div class="row">
+        <div class="col-md-5">
+            <img src="{{ url_for ('static', filename= 'logo_all.png')}}" alt="" style="max-width: 100%; height: auto;">
+        </div>
+        <div class="col-md-7">
+            <div class="card-body">
+                <h1> Combined Admission of
+                    BUET, CUET, KUET & RUET!</h1>
+                <h3>Session : 2021-2022</h3>
+
+                <a class="btn btn-outline-primary" href="/apply" role="button"
+                    style="margin-top: 5px; margin-right: 20px;">Apply Online</a>
+                Apply from PC/Laptop for better view <br>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="buffer" style="min-height: 1rem;"></div>
+<div class="card">
+    <div class="card-body">
+        <h2> Important Info</h2>
+        <p> Lorem ipsum, dolor sit amet consectetur adipisicing elit. Explicabo quam accusantium enim fugiat aperiam vero aut soluta nesciunt voluptatum ratione molestiae ad ipsam obcaecati unde, placeat praesentium voluptate. Aspernatur, culpa!
+            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Animi labore obcaecati doloribus voluptatem, nam at repudiandae ut iure voluptate asperiores pariatur. Eos beatae dolorum excepturi, error quasi optio doloribus iure.
+        </p>
+    </div>
+</div>
+
+
+<div class="buffer" style="min-height: 1rem;"></div>
+<div class="card">
+    
+    <div class="card-body" >
+        <h2> Available Subjects in Universities  </h2>
+        <div class="card-body" style="margin-left:30px;">
+            <table class="table table-striped" >
+            
+                {% for row in context %}
+                <tr>
+                    <td>{{row[0]}} </td>  <td>{{row[1]}}  </td>
+                </tr>
+                    
+                {% endfor %}
+    
+            </table>
+        </div>
+        <p>
+
+            
+        </p>
+    </div>
+</div>
+{% endblock %}
