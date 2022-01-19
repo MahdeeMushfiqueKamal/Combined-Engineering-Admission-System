@@ -49,3 +49,5 @@ The states of the Website will be selected by the system admin.
 * **Migration:** There will be migration on certain dates. Migration period and migration control will be at the hands of admins. 
 
 
+# Entity Relation Diagram
+![erd](updated_erd.jpeg)

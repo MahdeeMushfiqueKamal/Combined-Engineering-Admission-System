@@ -36,23 +36,79 @@
 <div class="card">
     
     <div class="card-body" >
-        <h2> Available Subjects in Universities  </h2>
-        <div class="card-body" style="margin-left:30px;">
-            <table class="table table-striped" >
-            
-                {% for row in context %}
-                <tr>
-                    <td>{{row[0]}} </td>  <td>{{row[1]}}  </td>
-                </tr>
-                    
-                {% endfor %}
-    
-            </table>
-        </div>
-        <p>
+        <h2> Subjects and number of seats in universities </h2>
+        <div class="row">
+            <div class="col-md-6" style="margin-top: 20px;">
+                <h4> BUET  </h4>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <td>Department</td> <td> General Seat </td> <td>Quota Seat </td>
+                        </tr>
+                    </thead>
+                    {% for row in BUET_SEATS %}
+                    <tr>
+                        <td>{{row[0]}} </td>  <td>{{row[1]}}  </td> <td>{{row[2]}}  </td>
+                    </tr>
+                        
+                    {% endfor %}
+        
+                </table>
+            </div>
+            <div class="col-md-6" style="margin-top: 20px;">
+                <h4>  CUET  </h4>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <td>Department</td> <td> General Seat </td> <td>Quota Seat </td>
+                        </tr>
+                    </thead>
+                    {% for row in CUET_SEATS %}
+                    <tr>
+                        <td>{{row[0]}} </td>  <td>{{row[1]}}  </td> <td>{{row[2]}}  </td>
+                    </tr>
+                        
+                    {% endfor %}
+        
+                </table>
+            </div>
 
-            
-        </p>
+            <div class="col-md-6" style="margin-top: 20px;">
+                <h4>  KUET  </h4>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <td>Department</td> <td> General Seat </td> <td>Quota Seat </td>
+                        </tr>
+                    </thead>
+                    {% for row in KUET_SEATS %}
+                    <tr>
+                        <td>{{row[0]}} </td>  <td>{{row[1]}}  </td> <td>{{row[2]}}  </td>
+                    </tr>
+                        
+                    {% endfor %}
+        
+                </table>
+            </div>
+
+            <div class="col-md-6" style="margin-top: 20px;">
+                <h4>  RUET  </h4>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <td>Department</td> <td> General Seat </td> <td>Quota Seat </td>
+                        </tr>
+                    </thead>
+                    {% for row in RUET_SEATS %}
+                    <tr>
+                        <td>{{row[0]}} </td>  <td>{{row[1]}}  </td> <td>{{row[2]}}  </td>
+                    </tr>
+                        
+                    {% endfor %}
+        
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

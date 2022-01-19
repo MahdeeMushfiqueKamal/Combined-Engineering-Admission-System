@@ -61,7 +61,7 @@ def create_schema():
                 raise;
               end if;
             end;
-
+            
             begin
             execute immediate 'drop table SUBJECT';
             exception when others then
@@ -69,7 +69,7 @@ def create_schema():
                 raise;
                 end if;
             end;            
-
+            
             
             
             execute immediate 'CREATE TABLE UNIVERSITY(UNI_ID VARCHAR2(4) NOT NULL PRIMARY KEY,NAME VARCHAR2(60) NOT NULL,LOCATION VARCHAR(255) NOT NULL)';
@@ -85,6 +85,7 @@ def create_schema():
             -- populate UNIVERSITY
 
             execute immediate 'INSERT INTO UNIVERSITY(UNI_ID,NAME,LOCATION) VALUES(''BUET'',''Bangladesh University of Engineering and Technology'', ''Dhaka-1000'')';
+            execute immediate 'INSERT INTO UNIVERSITY(UNI_ID,NAME,LOCATION) VALUES(''CUET'',''Chittagong University of Engineering and Technology'', ''Chittagong'')';
             execute immediate 'INSERT INTO UNIVERSITY(UNI_ID,NAME,LOCATION) VALUES(''KUET'',''Khulna University of Engineering and Technology'', ''Fulbarigate,Khulna'')';
             execute immediate 'INSERT INTO UNIVERSITY(UNI_ID,NAME,LOCATION) VALUES(''RUET'',''Rajshahi University of Engineering and Technology'', ''Kazla, Rajshahi-6204'')';
            
@@ -108,11 +109,71 @@ def create_schema():
             execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''MSE'',''Material Science and Engineering'')';
             execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''ME'',''Mechanical Engineering'')';
             execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''MIE'',''Mechatronics and Industrial Engineering'')';
+            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''MME'',''Materials and Metallurgical Engineering'')';
             execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''MTE'',''Mechatronics Engineering'')';
+            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''NAME'',''Naval Architecture and Marine Engineering'')';
             execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''TE'',''Textile Engineering'')';
             execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''PME'',''Petrolium and Mining Engineering'')';
             execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''URP'',''Urbal and Regional Planning'')';
             execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''WRE'',''Water Resources Engineering'')';
+
+            -- populate Uni-Sub
+
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''BUET'',''ARCH'',55,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''BUET'',''BME'',30,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''BUET'',''CE'',195,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''BUET'',''CHE'',60,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''BUET'',''CSE'',120,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''BUET'',''EEE'',195,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''BUET'',''IPE'',30,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''BUET'',''NAME'',55,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''BUET'',''ME'',180,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''BUET'',''MME'',50,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''BUET'',''URP'',30,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''BUET'',''WRE'',30,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''CUET'',''ARCH'',30,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''CUET'',''BME'',30,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''CUET'',''CE'',130,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''CUET'',''CSE'',130,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''CUET'',''EEE'',180,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''CUET'',''ETE'',60,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''CUET'',''MSE'',30,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''CUET'',''ME'',180,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''CUET'',''MIE'',30,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''CUET'',''PME'',30,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''CUET'',''URP'',30,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''CUET'',''WRE'',30,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''ARCH'',40,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''BECM'',60,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''BME'',30,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''CHE'',30,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''CE'',120,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''CSE'',120,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''EEE'',120,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''ECE'',60,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''ESE'',30,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''IEM'',60,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''LE'',60,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''MSE'',60,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''ME'',120,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''MTE'',30,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''TE'',60,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''URP'',60,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''ARCH'',30,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''BECM'',30,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''CFPE'',30,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''CE'',180,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''CSE'',180,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''EEE'',180,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''ECE'',60,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''ETE'',60,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''GCE'',60,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''IPE'',60,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''ME'',180,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''MSE'',60,0)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''MTE'',60,1)';
+            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''URP'',60,1)';
+
             commit;
         end;""")
     
@@ -139,9 +200,27 @@ app = Flask(__name__)
 def index():
     connection = pool.acquire()
     cursor = connection.cursor()
-    cursor.execute("SELECT * FROM SUBJECT")
-    query_result = cursor.fetchall()
-    return render_template('index.html',context=query_result)
+    cursor.execute('''SELECT S.NAME, US.CAPASITY, US.QUOTA_CAPASITY FROM UNI_SUB US 
+    JOIN SUBJECT S ON US.SUB_ID = S.SUB_ID WHERE US.UNI_ID = 'BUET'
+    ''')
+    BUET_SEATS = cursor.fetchall()
+
+    cursor.execute('''SELECT S.NAME, US.CAPASITY, US.QUOTA_CAPASITY FROM UNI_SUB US 
+    JOIN SUBJECT S ON US.SUB_ID = S.SUB_ID WHERE US.UNI_ID = 'CUET'
+    ''')
+    CUET_SEATS = cursor.fetchall()
+
+    cursor.execute('''SELECT S.NAME, US.CAPASITY, US.QUOTA_CAPASITY FROM UNI_SUB US 
+    JOIN SUBJECT S ON US.SUB_ID = S.SUB_ID WHERE US.UNI_ID = 'KUET'
+    ''')
+    KUET_SEATS = cursor.fetchall()
+
+    cursor.execute('''SELECT S.NAME, US.CAPASITY, US.QUOTA_CAPASITY FROM UNI_SUB US 
+    JOIN SUBJECT S ON US.SUB_ID = S.SUB_ID WHERE US.UNI_ID = 'RUET'
+    ''')
+    RUET_SEATS = cursor.fetchall()
+
+    return render_template('index.html',BUET_SEATS=BUET_SEATS, CUET_SEATS = CUET_SEATS, KUET_SEATS= KUET_SEATS, RUET_SEATS = RUET_SEATS)
 
 
 ################################################################################
