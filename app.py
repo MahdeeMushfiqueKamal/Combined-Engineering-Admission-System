@@ -2,6 +2,7 @@ import os
 import sys
 import cx_Oracle
 from flask import Flask,render_template, url_for
+from markupsafe import escape
 
 if sys.platform.startswith("darwin"):
     cx_Oracle.init_oracle_client(lib_dir=os.environ.get("HOME")+"/instantclient_19_3")
@@ -22,24 +23,13 @@ def start_pool():
     pool_inc = 0
     pool_gmd = cx_Oracle.SPOOL_ATTRVAL_WAIT
 
-    print("Connecting to localhost")
+    print("Connecting to localhost...................")
 
-    pool = cx_Oracle.SessionPool(user="SYSTEM",
-                                 password="1234",
-                                 dsn="127.0.0.1/orcl",
-                                 min=pool_min,
-                                 max=pool_max,
-                                 increment=pool_inc,
-                                 threaded=True,
-                                 getmode=pool_gmd,
-                                 sessionCallback=init_session)
-
+    pool = cx_Oracle.SessionPool(user="SYSTEM",password="1234",dsn="127.0.0.1/orcl", min=pool_min,max=pool_max,increment=pool_inc,threaded=True,getmode=pool_gmd,sessionCallback=init_session)
     return pool
 
 ################################################################################
-#
 # create_schema(): drop and create the demo table, and add a row
-#
 def create_schema():
     connection = pool.acquire()
     cursor = connection.cursor()
@@ -47,7 +37,7 @@ def create_schema():
         begin
 
             begin
-            execute immediate 'drop table UNI_SUB';
+            execute immediate 'drop table UNI_SUB cascade constraints';
             exception when others then
                 if sqlcode <> -942 then
                 raise;
@@ -55,7 +45,7 @@ def create_schema():
             end;
 
             begin
-            execute immediate 'drop table UNIVERSITY';
+            execute immediate 'drop table UNIVERSITY cascade constraints';
             exception when others then
               if sqlcode <> -942 then
                 raise;
@@ -63,16 +53,43 @@ def create_schema():
             end;
             
             begin
-            execute immediate 'drop table SUBJECT';
+            execute immediate 'drop table SUBJECT cascade constraints';
             exception when others then
                 if sqlcode <> -942 then
                 raise;
                 end if;
-            end;            
-            
-            
-            
-            execute immediate 'CREATE TABLE UNIVERSITY(UNI_ID VARCHAR2(4) NOT NULL PRIMARY KEY,NAME VARCHAR2(60) NOT NULL,LOCATION VARCHAR(255) NOT NULL)';
+            end;   
+
+            begin
+            execute immediate 'drop table EXAM_CENTER cascade constraints';
+            exception when others then
+                if sqlcode <> -942 then
+                raise;
+                end if;
+            end;     
+
+            BEGIN
+            EXECUTE IMMEDIATE 'DROP SEQUENCE new_sequence';
+            EXCEPTION
+            WHEN OTHERS THEN
+                IF SQLCODE != -2289 THEN
+                RAISE;
+                END IF;
+            END;   
+
+            begin
+            execute immediate 'drop table STUDENT cascade constraints';
+            exception when others then
+                if sqlcode <> -942 then
+                raise;
+                end if;
+            end;  
+                   
+            execute immediate 'CREATE TABLE UNIVERSITY(
+                UNI_ID VARCHAR2(4) NOT NULL PRIMARY KEY,
+                NAME VARCHAR2(60) NOT NULL,
+                LOCATION VARCHAR(255) NOT NULL)';
+
             execute immediate 'CREATE TABLE SUBJECT(SUB_ID VARCHAR2(4) NOT NULL PRIMARY KEY,NAME VARCHAR2(60) NOT NULL)';
             execute immediate 'CREATE TABLE UNI_SUB(
                 UNI_ID VARCHAR2(4) REFERENCES UNIVERSITY(UNI_ID),
@@ -80,118 +97,50 @@ def create_schema():
                 CAPASITY INT,
                 QUOTA_CAPASITY INT
             )'; 
+            execute immediate 'CREATE TABLE EXAM_CENTER(
+                CENTER_ID VARCHAR2(4) NOT NULL PRIMARY KEY,
+                NAME VARCHAR2(60) NOT NULL,
+                LOCATION VARCHAR2(255) NOT NULL,
+                CAPASITY INT NOT NULL,
+                FILLED INT DEFAULT 0)';
 
+            execute immediate 'CREATE SEQUENCE new_sequence
+                MINVALUE 111111
+                START WITH 111111
+                INCREMENT BY 1
+                CACHE 10';
 
-            -- populate UNIVERSITY
-
-            execute immediate 'INSERT INTO UNIVERSITY(UNI_ID,NAME,LOCATION) VALUES(''BUET'',''Bangladesh University of Engineering and Technology'', ''Dhaka-1000'')';
-            execute immediate 'INSERT INTO UNIVERSITY(UNI_ID,NAME,LOCATION) VALUES(''CUET'',''Chittagong University of Engineering and Technology'', ''Chittagong'')';
-            execute immediate 'INSERT INTO UNIVERSITY(UNI_ID,NAME,LOCATION) VALUES(''KUET'',''Khulna University of Engineering and Technology'', ''Fulbarigate,Khulna'')';
-            execute immediate 'INSERT INTO UNIVERSITY(UNI_ID,NAME,LOCATION) VALUES(''RUET'',''Rajshahi University of Engineering and Technology'', ''Kazla, Rajshahi-6204'')';
-           
-            -- populate subject
-            
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''ARCH'',''Architecture'')';
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''BECM'',''Building Engineering and Construction Management'')';
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''BME'',''Biomedical Engineering'')';
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''CE'',''Civil Engineering'')';
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''CFPE'',''Chemical and Food Process Engineering'')';
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''CHE'',''Chemical Engineering'')';
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''CSE'',''Computer Science and Engineering'')';
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''ECE'',''Electrical and Computer Engineering'')';
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''EEE'',''Electrical and Electronics Engineering'')';
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''ESE'',''Energy Science and Engineering'')';
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''ETE'',''Electronics and Telecommunication Engineering'')';
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''GCE'',''Glass and Ceramic Engineering'')';
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''IEM'',''Industrial Engineering and Management'')';
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''IPE'',''Industrial and Production Engineering'')';
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''LE'',''Lather Engineering'')';
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''MSE'',''Material Science and Engineering'')';
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''ME'',''Mechanical Engineering'')';
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''MIE'',''Mechatronics and Industrial Engineering'')';
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''MME'',''Materials and Metallurgical Engineering'')';
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''MTE'',''Mechatronics Engineering'')';
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''NAME'',''Naval Architecture and Marine Engineering'')';
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''TE'',''Textile Engineering'')';
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''PME'',''Petrolium and Mining Engineering'')';
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''URP'',''Urbal and Regional Planning'')';
-            execute immediate 'INSERT INTO SUBJECT(SUB_ID,NAME) VALUES(''WRE'',''Water Resources Engineering'')';
-
-            -- populate Uni-Sub
-
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''BUET'',''ARCH'',55,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''BUET'',''BME'',30,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''BUET'',''CE'',195,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''BUET'',''CHE'',60,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''BUET'',''CSE'',120,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''BUET'',''EEE'',195,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''BUET'',''IPE'',30,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''BUET'',''NAME'',55,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''BUET'',''ME'',180,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''BUET'',''MME'',50,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''BUET'',''URP'',30,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''BUET'',''WRE'',30,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''CUET'',''ARCH'',30,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''CUET'',''BME'',30,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''CUET'',''CE'',130,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''CUET'',''CSE'',130,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''CUET'',''EEE'',180,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''CUET'',''ETE'',60,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''CUET'',''MSE'',30,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''CUET'',''ME'',180,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''CUET'',''MIE'',30,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''CUET'',''PME'',30,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''CUET'',''URP'',30,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''CUET'',''WRE'',30,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''ARCH'',40,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''BECM'',60,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''BME'',30,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''CHE'',30,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''CE'',120,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''CSE'',120,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''EEE'',120,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''ECE'',60,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''ESE'',30,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''IEM'',60,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''LE'',60,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''MSE'',60,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''ME'',120,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''MTE'',30,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''TE'',60,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''KUET'',''URP'',60,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''ARCH'',30,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''BECM'',30,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''CFPE'',30,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''CE'',180,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''CSE'',180,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''EEE'',180,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''ECE'',60,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''ETE'',60,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''GCE'',60,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''IPE'',60,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''ME'',180,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''MSE'',60,0)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''MTE'',60,1)';
-            execute immediate 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(''RUET'',''URP'',60,1)';
-
+            execute immediate 'CREATE TABLE STUDENT(
+                STUDENT_ID INTEGER NOT NULL PRIMARY KEY,
+                HSC_ROLL INTEGER NOT NULL,
+                HSC_REG INTEGER NOT NULL,
+                NAME VARCHAR2(100) NOT NULL,
+                BIRTHDATE DATE NOT NULL,
+                QUOTA_STATUS VARCHAR(1),
+                CENTER_ID VARCHAR2(4) REFERENCES EXAM_CENTER(CENTER_ID),
+                PHY_MARK INTEGER DEFAULT 0,
+                CHM_MARK INTEGER DEFAULT 0,
+                MATH_MARK INTEGER DEFAULT 0,
+                MERIT_POS INTEGER DEFAULT NULL,
+                QUOTA_POS INTEGER DEFAULT NULL 
+            )';
             commit;
         end;""")
     
+    fhand = open('supporting functions/populate_table.sql')
+    for line in fhand.readlines():
+        line = line.replace(';','').strip()
+        print(line)
+        cursor.execute(line)
+    connection.commit()
+    fhand.close()
 
+    cursor.execute('''INSERT INTO STUDENT(STUDENT_ID,HSC_ROLL,HSC_REG,NAME,BIRTHDATE,QUOTA_STATUS,CENTER_ID) VALUES(new_sequence.NEXTVAL,9961474,191365123,'Garth Mollah','3/5/2001','N','KUET')''')
+    cursor.execute('''UPDATE EXAM_CENTER SET FILLED = (SELECT FILLED FROM EXAM_CENTER WHERE CENTER_ID='KUET' ) + 1 WHERE CENTER_ID='KUET' ''')
+    connection.commit()
+    
 
 ################################################################################
-#
-# Specify some routes
-#
-# The default route will display a welcome message:
-#   http://127.0.0.1:8080/
-#
-# To insert a new user 'fred' you can call:
-#    http://127.0.0.1:8080/post/fred
-#
-# To find a username you can pass an id, for example 1:
-#   http://127.0.0.1:8080/user/1
-#
 
 app = Flask(__name__)
 
@@ -222,6 +171,17 @@ def index():
 
     return render_template('index.html',BUET_SEATS=BUET_SEATS, CUET_SEATS = CUET_SEATS, KUET_SEATS= KUET_SEATS, RUET_SEATS = RUET_SEATS)
 
+@app.route('/dashboard/<student_id>')
+def dashboard(student_id):
+    connection = pool.acquire()
+    cursor = connection.cursor()
+    cursor.execute('SELECT * from STUDENT WHERE STUDENT_ID = :id',[student_id])
+    strudent_details = cursor.fetchone()
+    print(strudent_details)
+    return str("Hello "+student_id)
+
+
+
 
 ################################################################################
 #
@@ -236,5 +196,4 @@ if __name__ == '__main__':
     create_schema()
 
     # Start a webserver
-    # app.run(port=int(os.environ.get('PORT', '8080')))
-    app.run(port=int(1520))
+    app.run(port=int(8080))

@@ -1,0 +1,25 @@
+ARCH,Architecture
+BECM,Building Engineering and Construction Management
+BME,Biomedical Engineering
+CE,Civil Engineering
+CFPE,Chemical and Food Process Engineering
+CHE,Chemical Engineering
+CSE,Computer Science and Engineering
+ECE,Electrical and Computer Engineering
+EEE,Electrical and Electronics Engineering
+ESE,Energy Science and Engineering
+ETE,Electronics and Telecommunication Engineering
+GCE,Glass and Ceramic Engineering
+IEM,Industrial Engineering and Management
+IPE,Industrial and Production Engineering
+LE,Lather Engineering
+MSE,Material Science and Engineering
+ME,Mechanical Engineering
+MIE,Mechatronics and Industrial Engineering
+MME,Materials and Metallurgical Engineering
+MTE,Mechatronics Engineering
+NAME,Naval Architecture and Marine Engineering
+TE,Textile Engineering
+PME,Petrolium and Mining Engineering
+URP,Urbal and Regional Planning
+WRE,Water Resources Engineering
