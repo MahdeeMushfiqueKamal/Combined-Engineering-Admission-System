@@ -1,0 +1,35 @@
+{% extends 'base.html'%}
+{% block body%}
+
+<div class="card">
+    <div class="card-body">
+        <h2> General Merit List </h2>
+        <table class="table">
+            <thead>
+                <th> Merit Position </th> <th> Examinee ID </th> <th> Name </th> <th> Phy </th> <th> Chm </th> <th> Math </th>
+            </thead>
+            {% for row in merit_rows %}
+            <tr>
+                <td>{{ row[0]}}</td> <td>{{ row[1]}}</td> <td>{{ row[2]}}</td> <td>{{ row[3]}}</td> <td>{{ row[4]}}</td> <td>{{ row[5]}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+
+        <br><br><br>
+        <h2> Quota Merit List </h2>
+        <table class="table">
+            <thead>
+                <th> Merit Position </th> <th> Examinee ID </th> <th> Name </th> <th> Phy </th> <th> Chm </th> <th> Math </th>
+            </thead>
+            {% for row in quota_rows %}
+            <tr>
+                <td>{{ row[0]}}</td> <td>{{ row[1]}}</td> <td>{{ row[2]}}</td> <td>{{ row[3]}}</td> <td>{{ row[4]}}</td> <td>{{ row[5]}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+
+{% endblock body %}

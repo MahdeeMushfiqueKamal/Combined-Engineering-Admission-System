@@ -1,7 +1,8 @@
 import os
+from sqlite3 import Cursor
 import sys
 import cx_Oracle
-from flask import Flask,render_template, url_for
+from flask import Flask,render_template, url_for, redirect
 from markupsafe import escape
 
 if sys.platform.startswith("darwin"):
@@ -31,113 +32,46 @@ def start_pool():
 ################################################################################
 # create_schema(): drop and create the demo table, and add a row
 def create_schema():
+    print('Creating Schema...')
     connection = pool.acquire()
     cursor = connection.cursor()
-    cursor.execute("""
-        begin
-
-            begin
-            execute immediate 'drop table UNI_SUB cascade constraints';
-            exception when others then
-                if sqlcode <> -942 then
-                raise;
-                end if;
-            end;
-
-            begin
-            execute immediate 'drop table UNIVERSITY cascade constraints';
-            exception when others then
-              if sqlcode <> -942 then
-                raise;
-              end if;
-            end;
-            
-            begin
-            execute immediate 'drop table SUBJECT cascade constraints';
-            exception when others then
-                if sqlcode <> -942 then
-                raise;
-                end if;
-            end;   
-
-            begin
-            execute immediate 'drop table EXAM_CENTER cascade constraints';
-            exception when others then
-                if sqlcode <> -942 then
-                raise;
-                end if;
-            end;     
-
-            BEGIN
-            EXECUTE IMMEDIATE 'DROP SEQUENCE new_sequence';
-            EXCEPTION
-            WHEN OTHERS THEN
-                IF SQLCODE != -2289 THEN
-                RAISE;
-                END IF;
-            END;   
-
-            begin
-            execute immediate 'drop table STUDENT cascade constraints';
-            exception when others then
-                if sqlcode <> -942 then
-                raise;
-                end if;
-            end;  
-                   
-            execute immediate 'CREATE TABLE UNIVERSITY(
-                UNI_ID VARCHAR2(4) NOT NULL PRIMARY KEY,
-                NAME VARCHAR2(60) NOT NULL,
-                LOCATION VARCHAR(255) NOT NULL)';
-
-            execute immediate 'CREATE TABLE SUBJECT(SUB_ID VARCHAR2(4) NOT NULL PRIMARY KEY,NAME VARCHAR2(60) NOT NULL)';
-            execute immediate 'CREATE TABLE UNI_SUB(
-                UNI_ID VARCHAR2(4) REFERENCES UNIVERSITY(UNI_ID),
-                SUB_ID VARCHAR2(4) REFERENCES SUBJECT(SUB_ID),
-                CAPASITY INT,
-                QUOTA_CAPASITY INT
-            )'; 
-            execute immediate 'CREATE TABLE EXAM_CENTER(
-                CENTER_ID VARCHAR2(4) NOT NULL PRIMARY KEY,
-                NAME VARCHAR2(60) NOT NULL,
-                LOCATION VARCHAR2(255) NOT NULL,
-                CAPASITY INT NOT NULL,
-                FILLED INT DEFAULT 0)';
-
-            execute immediate 'CREATE SEQUENCE new_sequence
-                MINVALUE 111111
-                START WITH 111111
-                INCREMENT BY 1
-                CACHE 10';
-
-            execute immediate 'CREATE TABLE STUDENT(
-                STUDENT_ID INTEGER NOT NULL PRIMARY KEY,
-                HSC_ROLL INTEGER NOT NULL,
-                HSC_REG INTEGER NOT NULL,
-                NAME VARCHAR2(100) NOT NULL,
-                BIRTHDATE DATE NOT NULL,
-                QUOTA_STATUS VARCHAR(1),
-                CENTER_ID VARCHAR2(4) REFERENCES EXAM_CENTER(CENTER_ID),
-                PHY_MARK INTEGER DEFAULT 0,
-                CHM_MARK INTEGER DEFAULT 0,
-                MATH_MARK INTEGER DEFAULT 0,
-                MERIT_POS INTEGER DEFAULT NULL,
-                QUOTA_POS INTEGER DEFAULT NULL 
-            )';
-            commit;
-        end;""")
+    fhand = open('supporting functions/DDL.sql')
+    cursor.execute(fhand.read())
+    fhand.close()
     
+    print("Populating Tables...")
     fhand = open('supporting functions/populate_table.sql')
     for line in fhand.readlines():
         line = line.replace(';','').strip()
-        print(line)
+        #print(line)
         cursor.execute(line)
     connection.commit()
     fhand.close()
 
-    cursor.execute('''INSERT INTO STUDENT(STUDENT_ID,HSC_ROLL,HSC_REG,NAME,BIRTHDATE,QUOTA_STATUS,CENTER_ID) VALUES(new_sequence.NEXTVAL,9961474,191365123,'Garth Mollah','3/5/2001','N','KUET')''')
-    cursor.execute('''UPDATE EXAM_CENTER SET FILLED = (SELECT FILLED FROM EXAM_CENTER WHERE CENTER_ID='KUET' ) + 1 WHERE CENTER_ID='KUET' ''')
+    print('Populating Examinee table...')
+    fhand = open('supporting functions/populate_examinee.sql')
+    for line in fhand.readlines():
+        line = line.replace(';','').strip()
+        #print(line)
+        cursor.execute(line)
     connection.commit()
+    fhand.close()
+
+
+    cursor.execute('SELECT CENTER_ID,FILLED FROM EXAM_CENTER')
+    for line in cursor.fetchall():
+        for item in line:
+            print(item, end=' \t')
+        print('')
+
+    print('Updating Examinee marks...')
+    fhand = open('supporting functions/update_marks.sql')
+    for line in fhand.readlines():
+        line = line.replace(';','').strip()
+        #print(line)
+        cursor.execute(line)
+    connection.commit()
+    fhand.close()
     
 
 ################################################################################
@@ -169,17 +103,63 @@ def index():
     ''')
     RUET_SEATS = cursor.fetchall()
 
-    return render_template('index.html',BUET_SEATS=BUET_SEATS, CUET_SEATS = CUET_SEATS, KUET_SEATS= KUET_SEATS, RUET_SEATS = RUET_SEATS)
+    return render_template('index.html',BUET_SEATS=BUET_SEATS, CUET_SEATS = CUET_SEATS, KUET_SEATS= KUET_SEATS, 
+    RUET_SEATS = RUET_SEATS)
 
-@app.route('/dashboard/<student_id>')
-def dashboard(student_id):
+@app.route('/dashboard/<examinee_id>')
+def dashboard(examinee_id):
     connection = pool.acquire()
     cursor = connection.cursor()
-    cursor.execute('SELECT * from STUDENT WHERE STUDENT_ID = :id',[student_id])
-    strudent_details = cursor.fetchone()
-    print(strudent_details)
-    return str("Hello "+student_id)
+    cursor.execute('SELECT * from EXAMINEE WHERE EXAMINEE_ID = :id',[examinee_id])
+    examinee_details = cursor.fetchone()
+    print(examinee_details)
+    cursor.execute('SELECT NAME,LOCATION FROM EXAM_CENTER WHERE CENTER_ID = (SELECT CENTER_ID FROM EXAMINEE WHERE EXAMINEE_ID = :id)',[examinee_id])
+    center_details = cursor.fetchone()
+    print(center_details)
+    return render_template('dashboard.html',examinee_details=examinee_details, center_details=center_details)
 
+@app.route('/merit_list')
+def merit_list():
+    connection = pool.acquire()
+    cursor = connection.cursor()
+    query_str = 'SELECT MERIT_POS, EXAMINEE_ID, NAME, PHY_MARK, CHM_MARK, MATH_MARK FROM EXAMINEE WHERE MERIT_POS IS NOT NULL ORDER BY MERIT_POS'
+    cursor.execute(query_str)
+    merit_rows = cursor.fetchall()
+
+    query_str = 'SELECT QUOTA_POS, EXAMINEE_ID, NAME, PHY_MARK, CHM_MARK, MATH_MARK FROM EXAMINEE WHERE QUOTA_POS IS NOT NULL ORDER BY QUOTA_POS'
+    cursor.execute(query_str)
+    quota_rows = cursor.fetchall()
+    
+    return render_template('merit_list.html',merit_rows=merit_rows,quota_rows=quota_rows)
+
+@app.route('/admin/generate_merit_list')
+def generate_merit_list():
+    connection = pool.acquire()
+    cursor = connection.cursor()
+    #for merit list
+    query_str = '''SELECT RANK() OVER( ORDER BY MATH_MARK+PHY_MARK+CHM_MARK DESC, MATH_MARK DESC, PHY_MARK DESC, 
+    CHM_MARK DESC, BIRTHDATE DESC, NAME ASC ) table_rank,EXAMINEE_ID 
+    FROM EXAMINEE OFFSET 0 ROWS FETCH NEXT 5000 ROWS ONLY'''
+
+    cursor.execute(query_str)
+    rows = cursor.fetchall()
+    for row in rows: 
+        query_str = 'UPDATE EXAMINEE SET MERIT_POS = '+str(row[0])+' WHERE EXAMINEE_ID = '+str(row[1])
+        cursor.execute(query_str)
+    
+    #for quota list
+    query_str = '''SELECT RANK() OVER( ORDER BY MATH_MARK+PHY_MARK+CHM_MARK DESC, MATH_MARK DESC, PHY_MARK DESC, 
+    CHM_MARK DESC, BIRTHDATE DESC, NAME ASC ) table_rank,EXAMINEE_ID 
+    FROM EXAMINEE WHERE QUOTA_STATUS=\'Y\' OFFSET 0 ROWS FETCH NEXT 100 ROWS ONLY'''
+
+    cursor.execute(query_str)
+    rows = cursor.fetchall()
+    for row in rows: 
+        query_str = 'UPDATE EXAMINEE SET QUOTA_POS = '+str(row[0])+' WHERE EXAMINEE_ID = '+str(row[1])
+        cursor.execute(query_str)
+
+    connection.commit()
+    return redirect(url_for('merit_list'))
 
 
 
