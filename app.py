@@ -2,7 +2,7 @@ import os
 from sqlite3 import Cursor
 import sys
 import cx_Oracle
-from flask import Flask,render_template, url_for, redirect
+from flask import Flask,render_template, url_for, redirect, abort
 from markupsafe import escape
 
 if sys.platform.startswith("darwin"):
@@ -49,7 +49,7 @@ def create_schema():
     fhand.close()
 
     print('Populating Examinee table...')
-    fhand = open('supporting functions/populate_examinee.sql')
+    fhand = open('supporting functions/populate_examinee_small.sql')
     for line in fhand.readlines():
         line = line.replace(';','').strip()
         #print(line)
@@ -65,7 +65,7 @@ def create_schema():
         print('')
 
     print('Updating Examinee marks...')
-    fhand = open('supporting functions/update_marks.sql')
+    fhand = open('supporting functions/update_marks_small.sql')
     for line in fhand.readlines():
         line = line.replace(';','').strip()
         #print(line)
@@ -118,19 +118,28 @@ def dashboard(examinee_id):
     print(center_details)
     return render_template('dashboard.html',examinee_details=examinee_details, center_details=center_details)
 
-@app.route('/merit_list')
-def merit_list():
+@app.route('/merit_list/<int:page>')
+def merit_list(page):
+    if page >= 50 or page <1:
+        abort(404)
+    
     connection = pool.acquire()
     cursor = connection.cursor()
     query_str = 'SELECT MERIT_POS, EXAMINEE_ID, NAME, PHY_MARK, CHM_MARK, MATH_MARK FROM EXAMINEE WHERE MERIT_POS IS NOT NULL ORDER BY MERIT_POS'
     cursor.execute(query_str)
-    merit_rows = cursor.fetchall()
+    merit_rows = cursor.fetchall()    
+    
+    return render_template('merit_list.html',merit_rows=merit_rows,page=page)
 
+
+@app.route('/quota_merit_list')
+def quota_merit_list():
+    connection = pool.acquire()
+    cursor = connection.cursor()
     query_str = 'SELECT QUOTA_POS, EXAMINEE_ID, NAME, PHY_MARK, CHM_MARK, MATH_MARK FROM EXAMINEE WHERE QUOTA_POS IS NOT NULL ORDER BY QUOTA_POS'
     cursor.execute(query_str)
     quota_rows = cursor.fetchall()
-    
-    return render_template('merit_list.html',merit_rows=merit_rows,quota_rows=quota_rows)
+    return render_template('quota_merit_list.html',quota_rows=quota_rows)
 
 @app.route('/admin/generate_merit_list')
 def generate_merit_list():
@@ -159,9 +168,11 @@ def generate_merit_list():
         cursor.execute(query_str)
 
     connection.commit()
-    return redirect(url_for('merit_list'))
+    return redirect(url_for('merit_list',page=1))
 
-
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('page_not_found.html'), 404
 
 ################################################################################
 #
