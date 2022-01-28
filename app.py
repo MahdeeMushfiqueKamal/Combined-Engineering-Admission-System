@@ -1,9 +1,7 @@
 import os
-from sqlite3 import Cursor
 import sys
 import cx_Oracle
-from flask import Flask,render_template, url_for, redirect, abort
-from markupsafe import escape
+from flask import *
 
 if sys.platform.startswith("darwin"):
     cx_Oracle.init_oracle_client(lib_dir=os.environ.get("HOME")+"/instantclient_19_3")
@@ -77,6 +75,7 @@ def create_schema():
 ################################################################################
 
 app = Flask(__name__)
+app.secret_key  = 'Rainbow'
 
 # Display a welcome message on the 'home' page
 @app.route('/')
@@ -105,6 +104,36 @@ def index():
 
     return render_template('index.html',BUET_SEATS=BUET_SEATS, CUET_SEATS = CUET_SEATS, KUET_SEATS= KUET_SEATS, 
     RUET_SEATS = RUET_SEATS)
+
+@app.route('/apply')
+def apply():
+    flash_msg = get_flashed_messages()
+    print(flash_msg)
+    return render_template('apply_form.html',flash_msg=flash_msg)
+
+@app.route('/process_apply',methods=['POST'])
+def process_apply():
+    print(request.form)
+    connection = pool.acquire()
+    cursor = connection.cursor()
+
+    hsc_roll = request.form['HSC_ROLL'] 
+    hsc_reg = request.form['HSC_REG'] 
+    query_str = 'SELECT * FROM EXAMINEE WHERE HSC_ROLL = '+hsc_roll+' OR HSC_REG = '+hsc_reg
+    cursor.execute(query_str)
+    if cursor.fetchone() != None:
+        flash('HSC ROLL or HSC Registration already exists. Try again or Log into dashboard')
+        return redirect('apply')
+    name = request.form['NAME'] 
+    password = request.form['PASS'] 
+    re_password = request.form['REPASS']
+    if password != re_password:
+        flash('Re Enter your password Properly')
+        return redirect('apply')
+    birth_date = request.form['DATE_OF_BIRTH']
+    quota_status = 'Y' if request.form.get('QUOTA_STATUS') else 'N'
+    print(hsc_reg,hsc_reg,name,password,birth_date,quota_status)
+    return "process apply called "+str(hsc_roll)
 
 @app.route('/dashboard/<examinee_id>')
 def dashboard(examinee_id):

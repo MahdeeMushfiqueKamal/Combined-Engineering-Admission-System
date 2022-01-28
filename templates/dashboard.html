@@ -15,6 +15,12 @@
             </div>
             <div class="col-md-9">
                 <div class="buffer" style="min-height: 1rem;"></div>
+                <!-- Flash Message -->
+                {% if flash_msg %}
+                <div class="alert alert-warning" role="alert">
+                    {{flash_msg[0]}}
+                </div>
+                <!-- Flash Message Ends-->
                 <div class="row">
                     <div class="col-md-7">
                         <h3>{{examinee_details[3]}}</h3>

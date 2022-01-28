@@ -1,0 +1,61 @@
+{% extends 'base.html'%}
+{% block body%}
+<div class="buffer" style="min-height: 3rem;"></div>
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <h2> Apply for Combined Engineering Admission Test </h2>
+                <!-- Flash Message -->
+                {% if flash_msg %}
+                <div class="alert alert-warning" role="alert">
+                    {{flash_msg[0]}}
+                </div>
+                <!-- Flash Message Ends-->
+                {% endif %}
+                <!-- Apply form starts-->
+                <form action = "{{url_for('process_apply')}}" method = "post">
+                    <div class="form-group">
+                      <label for="HSC_ROLL"> HSC Roll No:  </label>
+                      <input type="text" class="form-control" id="HSC_ROLL" name="HSC_ROLL" placeholder="7 digit HSC Roll No">
+                    </div>
+                    <div class="form-group">
+                        <label for="HSC_REG"> HSC Registration No:  </label>
+                        <input type="text" class="form-control" id="HSC_REG" name="HSC_REG" placeholder="9 Digit HSC Roll">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="NAME"> Name:  </label>
+                        <input type="text" class="form-control" id="NAME" name="NAME" placeholder="Full Name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="DATE_OF_BIRTH"> Date of Birth: </label>
+                        <input type="date" class="form-control" id="DATE_OF_BIRTH" name="DATE_OF_BIRTH">
+                    </div>
+
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="QUOTA_STATUS", name="QUOTA_STATUS">
+                        <label class="form-check-label" for="QUOTA_STATUS">Check if You have Quota Status </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Password">Enter Password</label>
+                        <input type="password" class="form-control" name="PASS" id="Password" placeholder="Enter Password">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Password">Re Enter Password</label>
+                        <input type="password" class="form-control" name="REPASS" id="Password" placeholder="Re Enter Password">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                  </form>
+                <!-- Apply form ends -->
+            </div>
+            <div class="col-md-3"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
