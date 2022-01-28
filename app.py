@@ -1,6 +1,4 @@
-import os
-import sys
-import cx_Oracle
+import os,sys,hashlib,cx_Oracle
 from flask import *
 
 if sys.platform.startswith("darwin"):
@@ -75,7 +73,7 @@ def create_schema():
 ################################################################################
 
 app = Flask(__name__)
-app.secret_key  = 'Rainbow'
+app.secret_key  = '36610328caf5968c435a13abc5d70b4c'
 
 # Display a welcome message on the 'home' page
 @app.route('/')
@@ -109,7 +107,11 @@ def index():
 def apply():
     flash_msg = get_flashed_messages()
     print(flash_msg)
-    return render_template('apply_form.html',flash_msg=flash_msg)
+    connection = pool.acquire()
+    cursor = connection.cursor()
+    seats = cursor.execute('SELECT CENTER_ID,CAPASITY-FILLED FROM EXAM_CENTER').fetchall()
+    print('printing seats',seats)
+    return render_template('apply_form.html',flash_msg=flash_msg,seats=seats)
 
 @app.route('/process_apply',methods=['POST'])
 def process_apply():
@@ -130,13 +132,28 @@ def process_apply():
     if password != re_password:
         flash('Re Enter your password Properly')
         return redirect('apply')
+    password = hashlib.sha256(password.encode('utf-8')).hexdigest()
     birth_date = request.form['DATE_OF_BIRTH']
     quota_status = 'Y' if request.form.get('QUOTA_STATUS') else 'N'
-    print(hsc_reg,hsc_reg,name,password,birth_date,quota_status)
-    return "process apply called "+str(hsc_roll)
+    center = request.form.get('CENTER')
+    if center == None:
+        flash('Select your Exam Center')
+        return redirect('apply')
+
+    query_str = 'INSERT INTO EXAMINEE(EXAMINEE_ID,HSC_ROLL,HSC_REG,NAME,BIRTHDATE,QUOTA_STATUS,CENTER_ID) VALUES(new_sequence.NEXTVAL,'+hsc_roll+','+hsc_reg+',\''+name+'\',\''+birth_date+'\',\''+quota_status+'\',\''+center+'\')'
+    cursor.execute(query_str)
+    query_str = 'UPDATE EXAM_CENTER SET FILLED = (SELECT FILLED FROM EXAM_CENTER WHERE CENTER_ID=\'' + center +'\' ) + 1 WHERE CENTER_ID=\''+center+'\''
+    cursor.execute(query_str)
+    connection.commit()
+    flash("Successfully Registered")
+    query_str = 'SELECT EXAMINEE_ID FROM EXAMINEE WHERE HSC_ROLL = '+hsc_roll 
+    cursor.execute(query_str)
+    examinee_id = cursor.fetchone()
+    return redirect(url_for('dashboard',examinee_id=examinee_id))
 
 @app.route('/dashboard/<examinee_id>')
 def dashboard(examinee_id):
+    flash_msg = get_flashed_messages()
     connection = pool.acquire()
     cursor = connection.cursor()
     cursor.execute('SELECT * from EXAMINEE WHERE EXAMINEE_ID = :id',[examinee_id])
@@ -145,7 +162,7 @@ def dashboard(examinee_id):
     cursor.execute('SELECT NAME,LOCATION FROM EXAM_CENTER WHERE CENTER_ID = (SELECT CENTER_ID FROM EXAMINEE WHERE EXAMINEE_ID = :id)',[examinee_id])
     center_details = cursor.fetchone()
     print(center_details)
-    return render_template('dashboard.html',examinee_details=examinee_details, center_details=center_details)
+    return render_template('dashboard.html',examinee_details=examinee_details, center_details=center_details,flash_msg=flash_msg)
 
 @app.route('/merit_list/<int:page>')
 def merit_list(page):

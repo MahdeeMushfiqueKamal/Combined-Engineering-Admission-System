@@ -15,6 +15,7 @@
                 <!-- Flash Message Ends-->
                 {% endif %}
                 <!-- Apply form starts-->
+                <br>
                 <form action = "{{url_for('process_apply')}}" method = "post">
                     <div class="form-group">
                       <label for="HSC_ROLL"> HSC Roll No:  </label>
@@ -40,6 +41,14 @@
                         <label class="form-check-label" for="QUOTA_STATUS">Check if You have Quota Status </label>
                     </div>
 
+                    Select Exam Center:
+
+                    {% for seat in seats %}
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="CENTER" value="{{seat[0]}}" id="CENTER" {% if seat[1] == 0 %}disabled{% endif %}>
+                        <label class="form-check-label" for="CENTER"> {{ seat[0] }} </label>
+                    </div>
+                    {% endfor %}
                     <div class="form-group">
                         <label for="Password">Enter Password</label>
                         <input type="password" class="form-control" name="PASS" id="Password" placeholder="Enter Password">
@@ -49,7 +58,7 @@
                         <label for="Password">Re Enter Password</label>
                         <input type="password" class="form-control" name="REPASS" id="Password" placeholder="Re Enter Password">
                     </div>
-
+                    <br>
                     <button type="submit" class="btn btn-primary">Submit</button>
                   </form>
                 <!-- Apply form ends -->
