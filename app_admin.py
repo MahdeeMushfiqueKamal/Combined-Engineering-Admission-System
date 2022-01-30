@@ -117,21 +117,32 @@ def generate_mark_list():
 
 
 
-@app.route('/admin/update_application_date')
-def update_application_date():
+#@app.route('/admin/update_application_date')
+#def update_application_date():
+#    connection = pool.acquire()
+#   cursor = connection.cursor()
+#    flash('Boo')
+#
+#   return redirect(url_for('index'))
+
+#@app.route('/admin/update_exam_date')
+#def update_exam_date():
+#    connection = pool.acquire()
+#    cursor = connection.cursor()
+#    flash('Boo')
+#
+#    return redirect(url_for('index'))
+
+
+
+@app.route('/admin/update_global_data_state')
+def update_global_data_state():
     connection = pool.acquire()
     cursor = connection.cursor()
     flash('Boo')
 
     return redirect(url_for('index'))
 
-@app.route('/admin/update_exam_date')
-def update_exam_date():
-    connection = pool.acquire()
-    cursor = connection.cursor()
-    flash('Boo')
-
-    return redirect(url_for('index'))
 
 
 
@@ -144,6 +155,13 @@ def update_msg():
     return redirect(url_for('index'))
 
 
+@app.route('/admin/delete_form')
+def delete_form():
+    connection = pool.acquire()
+    cursor = connection.cursor()
+    flash('Boo')
+
+    return redirect(url_for('index'))
 
 
 @app.errorhandler(404)
