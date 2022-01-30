@@ -11,12 +11,66 @@
         </div> 
         {% endif %}
         <h2> Admin Home Page </h2>
+
+
         <p> Aroma will edit this page according to her wish </p>
         <p> Don't create unnecessary pages/templates. Make as many forms in this index page as you want. GET data, process it in a def (route). Flash a success/fail message and redirect it back to index.</p>
         <p> Example: Generate merit list button </p>
         <p> Lorem ipsum, dolor sit amet consectetur adipisicing elit. Explicabo quam accusantium enim fugiat aperiam vero aut soluta nesciunt voluptatum ratione molestiae ad ipsam obcaecati unde, placeat praesentium voluptate. Aspernatur, culpa!
             Lorem ipsum dolor, sit amet consectetur adipisicing elit. Animi labore obcaecati doloribus voluptatem, nam at repudiandae ut iure voluptate asperiores pariatur. Eos beatae dolorum excepturi, error quasi optio doloribus iure.
         </p>
+    </div>
+</div>
+
+
+
+<div class="buffer" style="min-height: 1rem;"></div>
+<div class="card">    
+    <div class="card-body" >
+        <h3> Update Application Date </h3>
+        <div class="input-group" style="margin-top: 20px">
+            
+            <div>
+                <span class="input-group-addon" id="start-date">Start Date : </span>
+                <input
+                type="text"
+                class="form-control"
+                placeholder="DD/MM/YYYY"
+                id="applic-date"
+                aria-describedby="basic-addon1"
+                />
+                <span class="input-group-addon" id="end-date">End Date : </span>
+                <input
+                type="text"
+                class="form-control"
+                placeholder="DD/MM/YYYY"
+                aria-describedby="basic-addon1"
+                />
+            </div>
+        </div>
+        <a href="{{url_for('update_application_date')}}">
+            <button type="button" class="btn btn-primary btn-lg"> Submit </button>
+        </a>
+    </div>
+</div>
+
+
+<div class="buffer" style="min-height: 1rem;"></div>
+<div class="card">    
+    <div class="card-body" >
+        <h3> Update Exam Date </h3>
+        <div class="input-group" style="margin-top: 20px">
+            <input
+                type="text"
+                class="form-control"
+                placeholder="DD/MM/YYYY"
+                id="exam-date"
+                aria-describedby="basic-addon2"
+            />
+            </div>
+        <a href="{{url_for('update_exam_date')}}">
+            <button type="button" class="btn btn-primary btn-lg"> Submit </button>
+        </a>
     </div>
 </div>
 
@@ -30,4 +84,73 @@
         </a>
     </div>
 </div>
+
+
+<div class="buffer" style="min-height: 1rem;"></div>
+<div class="card">    
+    <div class="card-body" >
+        <h3> Generate Mark List </h3>
+        <a href="{{url_for('generate_mark_list')}}">
+            <button type="button" class="btn btn-primary btn-lg"> Generate Mark List </button>
+        </a>
+    </div>
+</div>
+
+
+
+<div class="buffer" style="min-height: 1rem;"></div>
+<div class="card">    
+    <div class="card-body" >
+        <h3> Message for students </h3>        
+        <div class="input-group" style="margin-top: 20px">
+        <input
+            type="text"
+            class="form-control"
+            placeholder="text"
+            id="msg"
+            aria-describedby="basic-addon1"
+        />
+        </div>
+        <a href="{{url_for('update_msg')}}">
+            <button type="button" class="btn btn-primary btn-lg"> Submit </button>
+        </a>
+    </div>
+</div>
+
+
+<div class="buffer" style="min-height: 1rem;"></div>
+<div class="card">    
+    <div class="card-body" >
+        <h3> Delete a Form </h3>
+        <div class="input-group" style="margin-top: 20px">
+            
+            <div>
+                <span class="input-group-addon" id="form-id">Form ID : </span>
+                <input
+                type="text"
+                class="form-control"
+                id="delete_id"
+                aria-describedby="basic-addon1"
+                />
+                <span class="input-group-addon" id="form-roll">HSC Roll : </span>
+                <input
+                type="text"
+                class="form-control"
+                aria-describedby="basic-addon1"
+                />
+                <span class="input-group-addon" id="form-reg">HSC Reg : </span>
+                <input
+                type="text"
+                class="form-control"
+                aria-describedby="basic-addon1"
+                />
+            </div>
+            </div>
+        <a href="{{url_for('generate_merit_list')}}">
+            <button type="button" class="btn btn-primary btn-lg"> Delete Form </button>
+        </a>
+    </div>
+</div>
+
+
 {% endblock %}

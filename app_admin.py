@@ -22,7 +22,7 @@ def start_pool():
 
     print("Connecting to localhost...................")
 
-    pool = cx_Oracle.SessionPool(user="C##CEAS_ADMIN",password="1234",dsn="127.0.0.1/orcl", min=pool_min,max=pool_max,increment=pool_inc,threaded=True,getmode=pool_gmd,sessionCallback=init_session)
+    pool = cx_Oracle.SessionPool(user="C##CEAS_ADMIN",password="1234",dsn="127.0.0.1/rainbow", min=pool_min,max=pool_max,increment=pool_inc,threaded=True,getmode=pool_gmd,sessionCallback=init_session)
     return pool
 
 ################################################################################
@@ -105,6 +105,46 @@ def generate_merit_list():
     connection.commit()
     flash('Merit List has been generated')
     return redirect(url_for('index'))
+
+
+@app.route('/admin/generate_mark_list')
+def generate_mark_list():
+    connection = pool.acquire()
+    cursor = connection.cursor()
+
+    flash('Boo')
+    return redirect(url_for('index'))
+
+
+
+@app.route('/admin/update_application_date')
+def update_application_date():
+    connection = pool.acquire()
+    cursor = connection.cursor()
+    flash('Boo')
+
+    return redirect(url_for('index'))
+
+@app.route('/admin/update_exam_date')
+def update_exam_date():
+    connection = pool.acquire()
+    cursor = connection.cursor()
+    flash('Boo')
+
+    return redirect(url_for('index'))
+
+
+
+@app.route('/admin/update_msg')
+def update_msg():
+    connection = pool.acquire()
+    cursor = connection.cursor()
+    flash('Boo')
+
+    return redirect(url_for('index'))
+
+
+
 
 @app.errorhandler(404)
 def page_not_found(error):
