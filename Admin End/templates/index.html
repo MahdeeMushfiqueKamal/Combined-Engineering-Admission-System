@@ -18,10 +18,32 @@
         <p> Lorem ipsum, dolor sit amet consectetur adipisicing elit. Explicabo quam accusantium enim fugiat aperiam vero aut soluta nesciunt voluptatum ratione molestiae ad ipsam obcaecati unde, placeat praesentium voluptate. Aspernatur, culpa!
             Lorem ipsum dolor, sit amet consectetur adipisicing elit. Animi labore obcaecati doloribus voluptatem, nam at repudiandae ut iure voluptate asperiores pariatur. Eos beatae dolorum excepturi, error quasi optio doloribus iure.
         </p>
+
+        <br><br>
+        <div class="row">
+            <div class="col-md-7">
+                <h3> Important Info </h3>
+                <p>
+                {% set rows = GLOBAL_DATA[0][0].split(';') %}
+                {% for row in rows %}
+                     {{ row }} </br>
+                {% endfor %}
+                </p>
+            </div>
+            <div class="col-md-4">
+                <h3> Important Dates: </h3>
+                <table class="table table-borderless ">
+                    <tr> {% if GLOBAL_DATA[0][1] %} <td> <b>Apply Starts: </b> </td> <td>  {{ GLOBAL_DATA[0][1] }} </td> {% endif %} </tr>
+                    <tr> {% if GLOBAL_DATA[0][2] %} <td> <b>Apply Ends: </b> </td> <td>  {{ GLOBAL_DATA[0][2] }} </td> {% endif %} </tr>
+                    <tr> {% if GLOBAL_DATA[0][3] %} <td> <b>Exam on: </b> </td> <td>  {{ GLOBAL_DATA[0][3] }} </td> {% endif %} </tr>
+                    <tr> {% if GLOBAL_DATA[0][4] %} <td> <b>Result On: </b> </td> <td>  {{ GLOBAL_DATA[0][4] }} </td> {% endif %} </tr>
+                    <tr> {% if GLOBAL_DATA[0][5] %} <td> <b>Migration Starts: </b> </td> <td>  {{ GLOBAL_DATA[0][5] }} </td> {% endif %} </tr>
+                </table>
+                
+            </div>
+        </div>
     </div>
 </div>
-
-
 
 <div class="buffer" style="min-height: 1rem;"></div>
 <div class="card">    

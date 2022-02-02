@@ -35,7 +35,14 @@ app.secret_key  = '36610328caf5968c435a13abc5d70b4d'
 @app.route('/')
 def index():
     flash_msg = get_flashed_messages()
-    return render_template('index.html',flash_msg=flash_msg)
+    connection = pool.acquire()
+    cursor = connection.cursor()
+    cursor.execute('''SELECT ADMIN_MESSAGE,TO_CHAR(APPLY_FIRST_DATE,'MONTH DD, YYYY'),TO_CHAR(APPLY_LAST_DATE,'MONTH DD, YYYY'),
+    TO_CHAR(EXAM_DATE,'MONTH DD, YYYY'),TO_CHAR(RESULT_DATE,'MONTH DD, YYYY'),TO_CHAR(MIGRATION_DATE,'MONTH DD, YYYY') 
+    FROM C##CEAS_ADMIN.GLOBAL_DATA ORDER BY ENTRY_NO''')
+    GLOBAL_DATA = cursor.fetchall()
+
+    return render_template('index.html',flash_msg=flash_msg, GLOBAL_DATA=GLOBAL_DATA)
 
 @app.route('/dashboard/<examinee_id>')
 def dashboard(examinee_id):

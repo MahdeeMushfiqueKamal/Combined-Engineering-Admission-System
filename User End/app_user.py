@@ -1,5 +1,4 @@
 import os,sys,hashlib,cx_Oracle
-from django.shortcuts import render
 from flask import *
 
 if sys.platform.startswith("darwin"):
@@ -55,8 +54,14 @@ def index():
     ''')
     RUET_SEATS = cursor.fetchall()
 
+    cursor.execute('''SELECT ADMIN_MESSAGE,TO_CHAR(APPLY_FIRST_DATE,'MONTH DD, YYYY'),TO_CHAR(APPLY_LAST_DATE,'MONTH DD, YYYY'),
+    TO_CHAR(EXAM_DATE,'MONTH DD, YYYY'),TO_CHAR(RESULT_DATE,'MONTH DD, YYYY'),TO_CHAR(MIGRATION_DATE,'MONTH DD, YYYY') 
+    FROM C##CEAS_ADMIN.GLOBAL_DATA ORDER BY ENTRY_NO''')
+    GLOBAL_DATA = cursor.fetchall()
+    print(GLOBAL_DATA)
+
     return render_template('index.html',BUET_SEATS=BUET_SEATS, CUET_SEATS = CUET_SEATS, KUET_SEATS= KUET_SEATS, 
-    RUET_SEATS = RUET_SEATS)
+    RUET_SEATS = RUET_SEATS,GLOBAL_DATA=GLOBAL_DATA)
 
 @app.route('/apply')
 def apply():

@@ -116,18 +116,18 @@ CREATE VIEW EXAMINEE_PERSONAL AS SELECT EXAMINEE_ID,HSC_ROLL,HSC_REG,NAME,BIRTHD
 CREATE TABLE GLOBAL_DATA(
 	ENTRY_NO INTEGER NOT NULL,
 	SYSTEM_STATE INTEGER DEFAULT 1,
-	APPLY_FIRST_DATE DATE,
-	APPLY_LAST_DATE DATE,
-	EXAM_DATE DATE,
-	RESULT_DATE DATE,
-	MIGRATION DATE,
-	ADMIN_MESSAGE VARCHAR2(1000)
+	APPLY_FIRST_DATE DATE DEFAULT SYSDATE,
+	APPLY_LAST_DATE DATE DEFAULT to_date('5-4-2022','dd-mm-yyyy'),
+	EXAM_DATE DATE DEFAULT to_date('14-05-2022','dd-mm-yyyy'),
+	RESULT_DATE DATE DEFAULT to_date('1-06-2022','dd-mm-yyyy'),
+	MIGRATION_DATE DATE DEFAULT to_date('15-06-2022','dd-mm-yyyy'),
+	ADMIN_MESSAGE VARCHAR2(10000)
 );
 
 
 -- populate with necessary data
 
-INSERT INTO GLOBAL_DATA(ENTRY_NO,APPLY_FIRST_DATE,APPLY_LAST_DATE) VALUES(1,TO_DATE('2022/6/1','YYYY/MM/DD'),TO_DATE('2022/2/1','YYYY/MM/DD'));
+INSERT INTO GLOBAL_DATA(ENTRY_NO,ADMIN_MESSAGE) VALUES(1,'Firstly, an applicant shall have to submit a properly filled online application form via the online submission system available through the website within the stipuleted time period.;Follow Covid Policy in Exam Hall and Bring Admit Card');
 		
 INSERT INTO UNIVERSITY(UNI_ID,NAME,LOCATION) VALUES('BUET','Bangladesh University of Engineering and Technology', 'Dhaka-1000');
 INSERT INTO UNIVERSITY(UNI_ID,NAME,LOCATION) VALUES('CUET','Chittagong University of Engineering and Technology', 'Kaptai, Highway, Chattogram 4349');
