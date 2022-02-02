@@ -1,0 +1,200 @@
+{% extends 'base.html'%}
+
+{% block body%}
+<div class="buffer" style="min-height: 3rem;"></div>
+<div class="card">
+    <div class="card-body">
+        {% if flash_msg %}
+        <div class="alert alert-warning" role="alert">
+            {{flash_msg[0]}}
+        </div> 
+        {% endif %}
+        <h2> Admin Home Page </h2>
+
+
+        <p> Aroma will edit this page according to her wish </p>
+        <p> Don't create unnecessary pages/templates. Make as many forms in this index page as you want. GET data, process it in a def (route). Flash a success/fail message and redirect it back to index.</p>
+        <p> Example: Generate merit list button </p>
+        <p> Lorem ipsum, dolor sit amet consectetur adipisicing elit. Explicabo quam accusantium enim fugiat aperiam vero aut soluta nesciunt voluptatum ratione molestiae ad ipsam obcaecati unde, placeat praesentium voluptate. Aspernatur, culpa!
+            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Animi labore obcaecati doloribus voluptatem, nam at repudiandae ut iure voluptate asperiores pariatur. Eos beatae dolorum excepturi, error quasi optio doloribus iure.
+        </p>
+    </div>
+</div>
+
+
+
+<div class="buffer" style="min-height: 1rem;"></div>
+<div class="card">    
+    <div class="card-body" style="padding: 1cm;">
+        <div class="row">
+            <div class="col-md-7">
+                <h3> Global Data </h3>
+                <form>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="buffer" style="min-height: 1rem;"></div>
+                            <h5> Application Period </h5>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="app-start-date">Start </label>
+                                    <input type="text" class="form-control" name="app-start-date" id="app-start-date" aria-describedby="basic-addon1" placeholder="DD/MM/YYYY">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="app-end-date">End </label>
+                                    <input type="text" class="form-control" name="app-end-date" id="app-start-date" aria-describedby="basic-addon1" placeholder="DD/MM/YYYY">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="buffer" style="min-height: 1rem;"></div>
+                    <div class="form-group">
+                        <label for="result-date">Exam Date </label>
+                        <input type="text" class="form-control" name="exam-date" id="exam-date" aria-describedby="basic-addon1" placeholder="DD/MM/YYYY">
+                    </div>
+                
+                    <div class="buffer" style="min-height: 1rem;"></div>
+                    <div class="form-group">
+                        <label for="result-date">Result will be published on </label>
+                        <input type="text" class="form-control" name="result-date" id="result-date" aria-describedby="basic-addon1" placeholder="DD/MM/YYYY">
+                    </div>
+
+
+                    <div class="buffer" style="min-height: 1rem;"></div>
+                    <div class="form-group">
+                        <label for="mig-date"> Migration </label>
+                        <input type="text" class="form-control" name="mig-date" id="mig-date" aria-describedby="basic-addon1" placeholder="DD/MM/YYYY">
+                    </div>
+
+                </form>
+            </div>
+            <div class="col-md-5">
+                <div class="dropdown" style="padding: 1cm;">
+                    <button class="btn btn-secondary dropdown-toggle" name="state" type="button" id="state" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        State Of the System
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="#">Registration Period</a>
+                        <a class="dropdown-item" href="#">Before Exam</a>
+                        <a class="dropdown-item" href="#">Exam Result</a>
+                        <a class="dropdown-item" href="#">Apply Period</a>
+                        <a class="dropdown-item" href="#">Admission Period</a>
+                        <a class="dropdown-item" href="#">Migration</a>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="buffer" style="min-height: 1rem;"></div>
+
+    <a href="#" style="padding: 1cm;">    <!-- url : {{'update_global_data_state'}}-->
+            <button type="button" class="btn btn-primary btn-lg float-right"> Update </button>
+    </a>
+
+</div>
+
+
+<div class="buffer" style="min-height: 1rem;"></div>
+<div class="card">    
+    <div class="card-body"  style="padding: 1cm;">
+        <div class="row">
+            <div class="col-md-6">
+                <h3> Generate Merit List </h3>
+                <div class="buffer" style="min-height: 1rem;"></div>
+
+                <a href="{{url_for('generate_merit_list')}}">
+                    <button type="button" class="btn btn-primary btn-lg float-right"> Generate Merit List </button>
+                </a>
+
+            </div>
+            <div class="col-md-6">
+                <h3> Generate Mark List </h3>
+
+                <div class="buffer" style="min-height: 1rem;"></div>
+                <a href="{{url_for('generate_mark_list')}}">
+                    <button  type="button" class="btn btn-primary btn-lg float-right"> Generate Mark List </button>
+                </a>
+            </div>
+
+        </div>
+        
+    </div>
+</div>
+
+
+<div class="buffer" style="min-height: 1rem;"></div>
+<div class="card">    
+    <div class="card-body"  style="padding: 1cm;">
+        <h3> Message for students </h3>        
+        <div class="input-group" style="margin-top: 20px">
+        <input
+            type="text"
+            class="form-control"
+            placeholder="text"
+            id="msg"
+            aria-describedby="basic-addon1"
+        />
+        </div>
+        <div class="buffer" style="min-height: 1rem;"></div>
+        <div class="row">
+            <div class="col-md-9">
+
+            </div>
+            <div class="col-md-3">
+                <a href="{{url_for('update_msg')}}"  style="padding: 1cm;">
+                    <button type="button" class="btn btn-primary btn-lg float-right"> Submit </button>
+                </a>
+            </div>
+
+        </div>
+        
+    </div>
+</div>
+
+
+<div class="buffer" style="min-height: 1rem;"></div>
+<div class="card">    
+    <div class="card-body"  style="padding: 1cm;">
+        <h3> Delete a Form </h3>
+        <form>
+            <div class="form-group">
+                <label for="formGroupExampleInput">Form ID : </label>
+                <input type="text" class="form-control" id="delete_id">
+            </div>
+
+            <div class="buffer" style="min-height: 1rem;"></div>
+            <div class="form-group">
+                <div class="row" >
+                    <div class="col-md-6">
+                        <label for="form-roll"> HSC Roll : </label>
+                        <input type="text" class="form-control" name="form-roll" id="form-roll" aria-describedby="basic-addon1" placeholder="xxxxxxx">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="form-reg"> HSC Reg : </label>
+                        <input type="text" class="form-control" name="form-reg" id="form-reg" aria-describedby="basic-addon1" placeholder="xxxxxxxxx">
+                    </div>
+                </div>            
+            </div>
+            <div class="buffer" style="min-height: 1rem;"></div>
+            <div class="row">
+                <div class="col-md-9">
+
+                </div>
+                <div class="col-md-3">
+                    <a href="#"  style="padding: 1cm;"> <!-- url: delete_form-->
+                        <button type="button" class="btn btn-primary btn-lg float-right"> Delete Form </button>
+                    </a>
+                </div>
+
+            </div>
+            
+        </form>
+
+    </div>
+</div>
+
+
+{% endblock %}

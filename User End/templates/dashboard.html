@@ -1,0 +1,78 @@
+{% extends 'base.html'%}
+
+{% block body%}
+
+<div class="buffer" style="min-height: 3rem;"></div>
+
+<div class="card" style="padding: 20px;">
+    <div class="card-body">
+        <h2 class="text-center"> Personal Dashboard </h2>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="buffer" style="min-height: 1rem;"></div>
+                <br>
+                <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="profile-picture" style="max-width: 200px; max-height: 300px; max-width: 80%; height: auto; object-fit: cover;">
+            </div>
+            <div class="col-md-9">
+                <div class="buffer" style="min-height: 1rem;"></div>
+                <!-- Flash Message -->
+                {% if flash_msg %}
+                <div class="alert alert-warning" role="alert">
+                    {{flash_msg[0]}}
+                </div>
+                {% endif %}
+                <!-- Flash Message Ends-->
+                <div class="row">
+                    <div class="col-md-7">
+                        <h3>{{examinee_details[3]}}</h3>
+                        
+                        <table class="table table-striped table-bordered" style="max-width: 80%;">
+                            <tr><td> <b>Examinee_ID:</b> </td> <td> {{examinee_details[0]}}</td></tr>
+                            <tr><td> <b>HSC Roll No:</b> </td> <td> {{examinee_details[1]}}</td></tr>
+                            <tr><td> <b> HSC Registration No: </b> </td> <td> {{examinee_details[2]}}</td></tr>
+                            <tr><td> <b> Date of Birth: </b> </td> <td> {{ examinee_details[4].date() }}</td></tr>
+                            <tr>
+                                <td> <b> Quota Status: </b> </td> 
+                                <td> {% if examinee_details[5] == 'N' %} No Quota {% else %} Tribal Quota {% endif %} </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-5">
+                        <br><h5>Exam Details: </h5>
+                        <hr>
+                        <b>Exam Date and time: </b> 08/04/2022 10:00 am <br><br>
+                        <b>Exam Center: </b>
+                        {{ center_details[0] }},<br>
+                        {{ center_details[1] }} <br><br>
+                        <p>Bring your Admit card and follow covid policy</p>
+                    </div>
+
+                    <div class="col-md-7">
+                        <div class="buffer" style="min-height: 1rem;"></div>
+                        <h2 class="text-center"> Result </h2>
+                        <div class="buffer" style="min-height: 1rem;"></div>
+                        <table class="table table-bordered" style="max-width: 85%;">
+                            <thead>
+                            <tr class="table-secondary">
+                                <th> Mathematics Marks</th> <th>Physics Marks</th> <th> Chemistry Mark </th>
+                            </tr>
+                            </thead>
+                            <tr>
+                                <td>{{examinee_details[7]}} </td> <td>{{examinee_details[8]}}</td> <td> {{examinee_details[9]}} </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-5">
+                        <br><br><br><br>
+                        <b> Merit Position: </b> {{examinee_details[10]}} <br>
+                        <b>Quota Position:  </b> {{examinee_details[11]}}
+                    </div>
+                </div>
+                
+                
+            
+            
+        </div>     
+    </div>
+</div>
+{% endblock %}

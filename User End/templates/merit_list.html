@@ -1,0 +1,49 @@
+{% extends 'base.html'%}
+{% block body%}
+<div class="buffer" style="min-height: 3rem;"></div>
+<div class="card">
+    <div class="card-body">
+        <h2 class="text-center"> General Merit List </h2>
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-6">
+                {% if merit_rows %}
+                <p class = >Showing merit positions from {{(page-1)*100+1}} to {{ page*100 }} </p>
+                <table class="table">
+                    <thead>
+                        <th> Merit Position </th> <th> Examinee ID </th> <th> Name </th> <th> Phy </th> <th> Chm </th> <th> Math </th>
+                    </thead>
+                    {% for row in merit_rows %}
+                    {% if loop.index > (page-1)*100 and page*100 >= loop.index %}
+                    <tr>
+                        <td> {{ row[0]}}</td> <td>{{ row[1]}}</td> <td>{{ row[2]}}</td> <td>{{ row[3]}}</td> <td>{{ row[4]}}</td> <td>{{ row[5]}}</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </table>
+                {% else %}
+                <p> Result has not been publised yet</p>
+                {% endif %}
+
+                <!--Pagination-->
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination">
+                      <li class="page-item {% if page == 1 %} disabled {% endif %}"><a class="page-link" href="{{url_for('merit_list',page = page-1 )}}">Previous</a></li>
+                      <li class="page-item"><a class="page-link" href="#"> Page: {{page}} / 50 </a></li>
+                      <li class="page-item {% if page == 50 %} disabled {% endif %}"><a class="page-link" href="{{url_for('merit_list',page = page+1 )}}">Next</a></li>
+                    </ul>
+                </nav>
+                <!--Pagination ends-->
+
+            </div>
+            <div class="col-md-1"></div>
+            <div class="col-md-3">
+                <h5>See also: </h5> 
+                <p> <a href="{{url_for('quota_merit_list')}}"> Quota Merit list </a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock body %}

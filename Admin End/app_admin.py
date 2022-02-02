@@ -22,7 +22,7 @@ def start_pool():
 
     print("Connecting to localhost...................")
 
-    pool = cx_Oracle.SessionPool(user="C##CEAS_ADMIN",password="1234",dsn="127.0.0.1/rainbow", min=pool_min,max=pool_max,increment=pool_inc,threaded=True,getmode=pool_gmd,sessionCallback=init_session)
+    pool = cx_Oracle.SessionPool(user="C##CEAS_ADMIN",password=os.environ.get('PYTHON_DB_PASSWORD'),dsn=os.environ.get('PYTHON_CONNECTSTRING'), min=pool_min,max=pool_max,increment=pool_inc,threaded=True,getmode=pool_gmd,sessionCallback=init_session)
     return pool
 
 ################################################################################
@@ -35,46 +35,45 @@ app.secret_key  = '36610328caf5968c435a13abc5d70b4d'
 @app.route('/')
 def index():
     flash_msg = get_flashed_messages()
-    return render_template('admin_index.html',flash_msg=flash_msg)
-    #return "admin Page"
+    return render_template('index.html',flash_msg=flash_msg)
 
-# @app.route('/dashboard/<examinee_id>')
-# def dashboard(examinee_id):
-#     flash_msg = get_flashed_messages()
-#     connection = pool.acquire()
-#     cursor = connection.cursor()
-#     cursor.execute('SELECT * from EXAMINEE WHERE EXAMINEE_ID = :id',[examinee_id])
-#     examinee_details = cursor.fetchone()
-#     print(examinee_details)
-#     if examinee_details == None:
-#         abort(404)
-#     cursor.execute('SELECT NAME,LOCATION FROM EXAM_CENTER WHERE CENTER_ID = (SELECT CENTER_ID FROM EXAMINEE WHERE EXAMINEE_ID = :id)',[examinee_id])
-#     center_details = cursor.fetchone()
-#     print(center_details)
-#     return render_template('dashboard.html',examinee_details=examinee_details, center_details=center_details,flash_msg=flash_msg)
+@app.route('/dashboard/<examinee_id>')
+def dashboard(examinee_id):
+    flash_msg = get_flashed_messages()
+    connection = pool.acquire()
+    cursor = connection.cursor()
+    cursor.execute('SELECT * from EXAMINEE WHERE EXAMINEE_ID = :id',[examinee_id])
+    examinee_details = cursor.fetchone()
+    print(examinee_details)
+    if examinee_details == None:
+        abort(404)
+    cursor.execute('SELECT NAME,LOCATION FROM EXAM_CENTER WHERE CENTER_ID = (SELECT CENTER_ID FROM EXAMINEE WHERE EXAMINEE_ID = :id)',[examinee_id])
+    center_details = cursor.fetchone()
+    print(center_details)
+    return render_template('dashboard.html',examinee_details=examinee_details, center_details=center_details,flash_msg=flash_msg)
 
-# @app.route('/merit_list/<int:page>')
-# def merit_list(page):
-#     if page > 50 or page <1:
-#         abort(404)
+@app.route('/merit_list/<int:page>')
+def merit_list(page):
+    if page > 50 or page <1:
+        abort(404)
     
-#     connection = pool.acquire()
-#     cursor = connection.cursor()
-#     query_str = 'SELECT MERIT_POS, EXAMINEE_ID, NAME, PHY_MARK, CHM_MARK, MATH_MARK FROM EXAMINEE WHERE MERIT_POS IS NOT NULL ORDER BY MERIT_POS'
-#     cursor.execute(query_str)
-#     merit_rows = cursor.fetchall()    
+    connection = pool.acquire()
+    cursor = connection.cursor()
+    query_str = 'SELECT MERIT_POS, EXAMINEE_ID, NAME, PHY_MARK, CHM_MARK, MATH_MARK FROM EXAMINEE WHERE MERIT_POS IS NOT NULL ORDER BY MERIT_POS'
+    cursor.execute(query_str)
+    merit_rows = cursor.fetchall()    
     
-#     return render_template('merit_list.html',merit_rows=merit_rows,page=page)
+    return render_template('merit_list.html',merit_rows=merit_rows,page=page)
 
 
-# @app.route('/quota_merit_list')
-# def quota_merit_list():
-#     connection = pool.acquire()
-#     cursor = connection.cursor()
-#     query_str = 'SELECT QUOTA_POS, EXAMINEE_ID, NAME, PHY_MARK, CHM_MARK, MATH_MARK FROM EXAMINEE WHERE QUOTA_POS IS NOT NULL ORDER BY QUOTA_POS'
-#     cursor.execute(query_str)
-#     quota_rows = cursor.fetchall()
-#     return render_template('quota_merit_list.html',quota_rows=quota_rows)
+@app.route('/quota_merit_list')
+def quota_merit_list():
+    connection = pool.acquire()
+    cursor = connection.cursor()
+    query_str = 'SELECT QUOTA_POS, EXAMINEE_ID, NAME, PHY_MARK, CHM_MARK, MATH_MARK FROM EXAMINEE WHERE QUOTA_POS IS NOT NULL ORDER BY QUOTA_POS'
+    cursor.execute(query_str)
+    quota_rows = cursor.fetchall()
+    return render_template('quota_merit_list.html',quota_rows=quota_rows)
 
 @app.route('/admin/generate_merit_list')
 def generate_merit_list():
@@ -117,32 +116,21 @@ def generate_mark_list():
 
 
 
-#@app.route('/admin/update_application_date')
-#def update_application_date():
-#    connection = pool.acquire()
-#   cursor = connection.cursor()
-#    flash('Boo')
-#
-#   return redirect(url_for('index'))
-
-#@app.route('/admin/update_exam_date')
-#def update_exam_date():
-#    connection = pool.acquire()
-#    cursor = connection.cursor()
-#    flash('Boo')
-#
-#    return redirect(url_for('index'))
-
-
-
-@app.route('/admin/update_global_data_state')
-def update_global_data_state():
+@app.route('/admin/update_application_date')
+def update_application_date():
     connection = pool.acquire()
     cursor = connection.cursor()
     flash('Boo')
 
     return redirect(url_for('index'))
 
+@app.route('/admin/update_exam_date')
+def update_exam_date():
+    connection = pool.acquire()
+    cursor = connection.cursor()
+    flash('Boo')
+
+    return redirect(url_for('index'))
 
 
 
@@ -155,13 +143,6 @@ def update_msg():
     return redirect(url_for('index'))
 
 
-@app.route('/admin/delete_form')
-def delete_form():
-    connection = pool.acquire()
-    cursor = connection.cursor()
-    flash('Boo')
-
-    return redirect(url_for('index'))
 
 
 @app.errorhandler(404)

@@ -22,8 +22,7 @@ def start_pool():
     pool_gmd = cx_Oracle.SPOOL_ATTRVAL_WAIT
 
     print("Connecting to localhost...................")
-
-    pool = cx_Oracle.SessionPool(user="C##CEAS_USER",password="1234",dsn="127.0.0.1/orcl", min=pool_min,max=pool_max,increment=pool_inc,threaded=True,getmode=pool_gmd,sessionCallback=init_session)
+    pool = cx_Oracle.SessionPool(user="C##CEAS_USER",password=os.environ.get('PYTHON_DB_PASSWORD'),dsn=os.environ.get('PYTHON_CONNECTSTRING'), min=pool_min,max=pool_max,increment=pool_inc,threaded=True,getmode=pool_gmd,sessionCallback=init_session)
     return pool
 
 ################################################################################
@@ -85,6 +84,12 @@ def process_apply():
     center = request.form.get('CENTER')
 
     if len(hsc_roll)!= 7 or len(hsc_reg)!=9 or len(name)==0 or len(password) ==0 or len(birth_date)==0:
+        print(len(hsc_roll))
+        print(len(hsc_reg))
+        print(len(name))
+        print(len(password))
+        print(len(birth_date))
+
         flash('Enter your data properly')
         return redirect('apply')
     query_str = 'SELECT * FROM C##CEAS_ADMIN.EXAMINEE WHERE HSC_ROLL = '+hsc_roll+' OR HSC_REG = '+hsc_reg
