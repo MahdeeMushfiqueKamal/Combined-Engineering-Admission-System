@@ -128,7 +128,7 @@ def process_apply():
         file_name = app.UPLOAD_PATH + str(examinee_id) + '.png'
         print(file_name)
         picture.save(file_name)
-        query_str = 'UPDATE C##CEAS_ADMIN.EXAMINEE_PERSONAL SET IMAGE_FILE = \''+str(examinee_id)+'.png\' WHERE EXAMINEE_ID = '+str(examinee_id)
+        query_str = 'UPDATE C##CEAS_ADMIN.EXAMINEE_PERSONAL SET IMAGE_URL = \''+str(examinee_id)+'.png\' WHERE EXAMINEE_ID = '+str(examinee_id)
         print(query_str)
         cursor.execute(query_str)
         connection.commit()
