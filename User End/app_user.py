@@ -1,4 +1,6 @@
+from fileinput import filename
 import os,sys,hashlib,cx_Oracle
+from pathlib import Path
 from flask import *
 
 if sys.platform.startswith("darwin"):
@@ -28,6 +30,10 @@ def start_pool():
 
 app = Flask(__name__)
 app.secret_key  = '36610328caf5968c435a13abc5d70b4c'
+app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
+app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png', '.gif']
+app.UPLOAD_PATH = str(Path(__file__).parent.absolute()) + '\\static\\profile_pic\\'
+
 
 # Display a welcome message on the 'home' page
 @app.route('/')
@@ -54,8 +60,8 @@ def index():
     ''')
     RUET_SEATS = cursor.fetchall()
 
-    cursor.execute('''SELECT ADMIN_MESSAGE,TO_CHAR(APPLY_FIRST_DATE,'MONTH DD, YYYY'),TO_CHAR(APPLY_LAST_DATE,'MONTH DD, YYYY'),
-    TO_CHAR(EXAM_DATE,'MONTH DD, YYYY'),TO_CHAR(RESULT_DATE,'MONTH DD, YYYY'),TO_CHAR(MIGRATION_DATE,'MONTH DD, YYYY') 
+    cursor.execute('''SELECT ADMIN_MESSAGE,TO_CHAR(APPLY_FIRST_DATE,'Month DD, YYYY'),TO_CHAR(APPLY_LAST_DATE,'Month DD, YYYY'),
+    TO_CHAR(EXAM_DATE,'Month DD, YYYY'),TO_CHAR(RESULT_DATE,'Month DD, YYYY'), TO_CHAR(MIGRATION_DATE,'Month DD, YYYY')
     FROM C##CEAS_ADMIN.GLOBAL_DATA ORDER BY ENTRY_NO''')
     GLOBAL_DATA = cursor.fetchall()
     print(GLOBAL_DATA)
@@ -114,6 +120,19 @@ def process_apply():
     query_str = 'SELECT EXAMINEE_ID FROM C##CEAS_ADMIN.EXAMINEE WHERE HSC_ROLL = '+hsc_roll 
     cursor.execute(query_str)
     examinee_id = cursor.fetchone()[0]
+
+    # uploading image 
+    picture = request.files.get('PICTURE')
+    print(picture)
+    if picture.filename != '':
+        file_name = app.UPLOAD_PATH + str(examinee_id) + '.png'
+        print(file_name)
+        picture.save(file_name)
+        query_str = 'UPDATE C##CEAS_ADMIN.EXAMINEE_PERSONAL SET IMAGE_FILE = \''+str(examinee_id)+'.png\' WHERE EXAMINEE_ID = '+str(examinee_id)
+        print(query_str)
+        cursor.execute(query_str)
+        connection.commit()
+    
     flash_msg = "Successfully Registered. Your Examinee Id is " + str(examinee_id) + ' Now Log in'
     flash(flash_msg)
     return redirect(url_for('login'))
@@ -154,7 +173,7 @@ def dashboard_redirect():
         return redirect(url_for('login'))
     examinee_id = session['examinee_id']
     return redirect(url_for('dashboard',examinee_id=examinee_id))
-    
+
 @app.route('/dashboard/<examinee_id>')
 def dashboard(examinee_id):
     flash_msg = get_flashed_messages()
@@ -209,8 +228,5 @@ if __name__ == '__main__':
     # Start a pool of connections
     pool = start_pool()
 
-    # Create a demo table
-    # create_schema()
-
     # Start a webserver
-    app.run(port=int(1520), debug=True)
+    app.run(port=int(1520), debug=False)

@@ -109,6 +109,7 @@ CREATE TABLE EXAMINEE(
 	MERIT_POS INTEGER DEFAULT NULL,
 	QUOTA_POS INTEGER DEFAULT NULL,
 	PASSWORD VARCHAR(64) DEFAULT '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4' 
+	IMAGE_URL VARCHAR(10) DEFAULT NULL
 );
 
 CREATE VIEW EXAMINEE_PERSONAL AS SELECT EXAMINEE_ID,HSC_ROLL,HSC_REG,NAME,BIRTHDATE,QUOTA_STATUS,CENTER_ID,PASSWORD FROM EXAMINEE;
@@ -127,7 +128,7 @@ CREATE TABLE GLOBAL_DATA(
 
 -- populate with necessary data
 
-INSERT INTO GLOBAL_DATA(ENTRY_NO,ADMIN_MESSAGE) VALUES(1,'Firstly, an applicant shall have to submit a properly filled online application form via the online submission system available through the website within the stipuleted time period.;Follow Covid Policy in Exam Hall and Bring Admit Card');
+INSERT INTO GLOBAL_DATA(ENTRY_NO,ADMIN_MESSAGE) VALUES(1,'Firstly, an applicant shall have to submit a properly filled online application form via the online submission system available through the website within the stipuleted time period.;;Follow Covid Policy in Exam Hall and Bring Admit Card;;Provide Subject Choice List within date');
 		
 INSERT INTO UNIVERSITY(UNI_ID,NAME,LOCATION) VALUES('BUET','Bangladesh University of Engineering and Technology', 'Dhaka-1000');
 INSERT INTO UNIVERSITY(UNI_ID,NAME,LOCATION) VALUES('CUET','Chittagong University of Engineering and Technology', 'Kaptai, Highway, Chattogram 4349');

@@ -11,10 +11,13 @@
             <div class="col-md-3">
                 <div class="buffer" style="min-height: 1rem;"></div>
                 <br>
-                <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="profile-picture" style="max-width: 200px; max-height: 300px; max-width: 80%; height: auto; object-fit: cover;">
+                {% if examinee_details[13] %}
+                <img src="{{ url_for ('static', filename= 'profile_pic/' + examinee_details[13])}}" alt="profile-picture" style="max-width: 200px; max-height: 240px; max-width: 80%; height: auto; object-fit: cover;">
+                {% else %}
+                <img src="{{ url_for ('static', filename= 'profile_pic/default_profile.png')}}" alt="profile-picture" style="max-width: 200px; max-height: 240px; max-width: 80%; height: auto; object-fit: cover;">
+                {% endif %}
                 <br><br><br>
-                <p>Log Out of Dashboard: </p>
-                <a href="{{url_for('logout')}}"><button type="button" class="btn btn-outline-danger">Log Out</button></a>
+                <a href="{{url_for('logout')}}"><button type="button" class="btn btn-outline-danger">Log Out of Dashboard</button></a>
             </div>
             <div class="col-md-9">
                 <div class="buffer" style="min-height: 1rem;"></div>
@@ -68,7 +71,7 @@
                     <div class="col-md-5">
                         <br><br><br><br>
                         <b> Merit Position: </b> {{examinee_details[10]}} <br>
-                        <b>Quota Position:  </b> {{examinee_details[11]}}
+                        <b> Quota Position: </b> {{examinee_details[11]}}
                     </div>
                 </div>
                 

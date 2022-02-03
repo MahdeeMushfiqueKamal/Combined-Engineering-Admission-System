@@ -16,7 +16,7 @@
                 {% endif %}
                 <!-- Apply form starts-->
                 <br>
-                <form action = "{{url_for('process_apply')}}" method = "post">
+                <form action = "{{url_for('process_apply')}}" method = "post" enctype="multipart/form-data">
                     <div class="form-group">
                       <label for="HSC_ROLL"> HSC Roll No:  </label>
                       <input type="text" class="form-control" id="HSC_ROLL" name="HSC_ROLL" placeholder="7 digit HSC Roll No">
@@ -57,6 +57,12 @@
                     <div class="form-group">
                         <label for="Password">Re Enter Password</label>
                         <input type="password" class="form-control" name="REPASS" id="Password" placeholder="Re Enter Password">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="PICTURE">Profile Picture: </label><br>
+                        <input type="file" class="form-control-file" name="PICTURE" id="PICTURE">
+                        <small id="PICTURE" class="form-text text-muted"> Upload PNG file only. (200px x 240px)</small>
                     </div>
                     <br>
                     <button type="submit" class="btn btn-primary">Submit</button>
