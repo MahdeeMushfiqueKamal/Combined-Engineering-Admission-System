@@ -1,0 +1,37 @@
+{% extends 'base.html'%}
+{% block body%}
+<div class="buffer" style="min-height: 3rem;"></div>
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4"></div>
+            <div class="col-md-4">
+                <h2 class="text-center"> Log in </h2>
+                <!-- Flash Message -->
+                {% if flash_msg %}
+                <div class="alert alert-warning" role="alert">
+                    {{flash_msg[0]}}
+                </div>
+                {% endif %}
+                <!-- Flash Message Ends-->
+                <form action="{{url_for('login')}}" method = "post">
+                    <div class="form-group">
+                        <label for="EXAMINEE_ID"> Examinee ID:  </label>
+                        <input type="text" class="form-control" id="EXAMINEE_ID" name="EXAMINEE_ID" placeholder="6 digit Examinee Id">
+                      </div>
+                      <div class="form-group">
+                        <label for="Password">Enter Password</label>
+                        <input type="password" class="form-control" name="PASS" id="Password" placeholder="Enter Password">
+                    </div>
+                    <br>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+                <!-- Apply form starts-->
+                <br>
+                
+            </div>
+            <div class="col-md-4"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

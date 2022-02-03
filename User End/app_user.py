@@ -89,12 +89,6 @@ def process_apply():
     center = request.form.get('CENTER')
 
     if len(hsc_roll)!= 7 or len(hsc_reg)!=9 or len(name)==0 or len(password) ==0 or len(birth_date)==0:
-        print(len(hsc_roll))
-        print(len(hsc_reg))
-        print(len(name))
-        print(len(password))
-        print(len(birth_date))
-
         flash('Enter your data properly')
         return redirect('apply')
     query_str = 'SELECT * FROM C##CEAS_ADMIN.EXAMINEE WHERE HSC_ROLL = '+hsc_roll+' OR HSC_REG = '+hsc_reg
@@ -112,16 +106,39 @@ def process_apply():
         flash('Select your Exam Center')
         return redirect('apply')
 
-    query_str = 'INSERT INTO C##CEAS_ADMIN.EXAMINEE_PERSONAL(EXAMINEE_ID,HSC_ROLL,HSC_REG,NAME,BIRTHDATE,QUOTA_STATUS,CENTER_ID) VALUES(C##CEAS_ADMIN.new_sequence.NEXTVAL,'+hsc_roll+','+hsc_reg+',\''+name+'\',\''+birth_date+'\',\''+quota_status+'\',\''+center+'\')'
+    query_str = 'INSERT INTO C##CEAS_ADMIN.EXAMINEE_PERSONAL(EXAMINEE_ID,HSC_ROLL,HSC_REG,NAME,BIRTHDATE,QUOTA_STATUS,CENTER_ID,PASSWORD) VALUES(C##CEAS_ADMIN.new_sequence.NEXTVAL,'+hsc_roll+','+hsc_reg+',\''+name+'\',\''+birth_date+'\',\''+quota_status+'\',\''+center+'\',\''+password+'\')'
     cursor.execute(query_str)
     query_str = 'UPDATE C##CEAS_ADMIN.EXAM_CENTER SET FILLED = (SELECT FILLED FROM C##CEAS_ADMIN.EXAM_CENTER WHERE CENTER_ID=\'' + center +'\' ) + 1 WHERE CENTER_ID=\''+center+'\''
     cursor.execute(query_str)
     connection.commit()
-    flash("Successfully Registered")
     query_str = 'SELECT EXAMINEE_ID FROM C##CEAS_ADMIN.EXAMINEE WHERE HSC_ROLL = '+hsc_roll 
     cursor.execute(query_str)
-    examinee_id = cursor.fetchone()
-    return redirect(url_for('dashboard',examinee_id=examinee_id))
+    examinee_id = cursor.fetchone()[0]
+    flash_msg = "Successfully Registered. Your Examinee Id is " + str(examinee_id) + ' Now Log in'
+    flash(flash_msg)
+    return redirect(url_for('login'))
+
+@app.route('/login',methods=['POST','GET'])
+def login():
+    if request.method == 'GET':
+        flash_msg = get_flashed_messages()
+        return render_template('login.html',flash_msg=flash_msg)
+    elif request.method == 'POST':
+        print(request.form)
+        examinee_id = request.form['EXAMINEE_ID'] 
+        password = request.form['PASS'] 
+        password = hashlib.sha256(password.encode('utf-8')).hexdigest()
+        connection = pool.acquire()
+        cursor = connection.cursor()
+        query_str = 'SELECT * FROM C##CEAS_ADMIN.EXAMINEE WHERE EXAMINEE_ID = ' + examinee_id +' AND PASSWORD = \''+ password +'\''
+        print(query_str)
+        cursor.execute(query_str)
+        if len(cursor.fetchall()) == 1:
+            flash('Successfully Logged in')
+            return redirect(url_for('dashboard',examinee_id=examinee_id))
+        else:
+            flash('Incorrect Examinee Id or Password, Try again')
+            return redirect(url_for('login'))
 
 @app.route('/dashboard/<examinee_id>')
 def dashboard(examinee_id):
@@ -178,4 +195,4 @@ if __name__ == '__main__':
     # create_schema()
 
     # Start a webserver
-    app.run(port=int(1520))
+    app.run(port=int(1520), debug=True)
