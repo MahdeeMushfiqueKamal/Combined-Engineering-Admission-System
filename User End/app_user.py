@@ -118,6 +118,12 @@ def process_apply():
     flash(flash_msg)
     return redirect(url_for('login'))
 
+@app.route('/logout',methods=['GET'])
+def logout():
+    session.pop('examinee_id',None)
+    flash('Successfully Logged Out')
+    return redirect(url_for('login'))
+
 @app.route('/login',methods=['POST','GET'])
 def login():
     if request.method == 'GET':
@@ -135,14 +141,26 @@ def login():
         cursor.execute(query_str)
         if len(cursor.fetchall()) == 1:
             flash('Successfully Logged in')
+            session['examinee_id'] = examinee_id
             return redirect(url_for('dashboard',examinee_id=examinee_id))
         else:
             flash('Incorrect Examinee Id or Password, Try again')
             return redirect(url_for('login'))
 
+@app.route('/dashboard')
+def dashboard_redirect():
+    if 'examinee_id' not in session:
+        flash('You need to login before entering Dashboard')
+        return redirect(url_for('login'))
+    examinee_id = session['examinee_id']
+    return redirect(url_for('dashboard',examinee_id=examinee_id))
+    
 @app.route('/dashboard/<examinee_id>')
 def dashboard(examinee_id):
     flash_msg = get_flashed_messages()
+    if 'examinee_id' not in session:
+        flash('You need to login before entering Dashboard')
+        return redirect(url_for('login'))
     connection = pool.acquire()
     cursor = connection.cursor()
     cursor.execute('SELECT * from C##CEAS_ADMIN.EXAMINEE WHERE EXAMINEE_ID = :id',[examinee_id])
