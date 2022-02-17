@@ -59,6 +59,72 @@ def dashboard(examinee_id):
     print(center_details)
     return render_template('dashboard.html',examinee_details=examinee_details, center_details=center_details,flash_msg=flash_msg)
 
+@app.route('/process_update',methods=['POST'])
+def process_update():
+    print("Process Update called")
+    print(request.form)
+    connection = pool.acquire()
+    cursor = connection.cursor()
+
+    start_date = request.form['app-start-date'] 
+    end_date = request.form['app-end-date'] 
+    exam_date = request.form['exam-date'] 
+    result_date = request.form['result-date']
+    mig_date = request.form['mig-date']
+    state = request.form['state']
+    msg = request.form['admin-msg']
+
+    print(start_date, end_date, exam_date, result_date, mig_date, state, msg)
+
+    
+    if start_date != "":
+        query_str = "UPDATE C##CEAS_ADMIN.GLOBAL_DATA SET APPLY_FIRST_DATE = TO_DATE('" + str(start_date) + "','YYYY-MM-DD')"
+        print(query_str)
+        cursor.execute(query_str)
+
+    if end_date != "":
+        query_str = "UPDATE C##CEAS_ADMIN.GLOBAL_DATA SET APPLY_LAST_DATE = TO_DATE('" + str(end_date) + "','YYYY-MM-DD')"
+        print(query_str)
+        cursor.execute(query_str)
+    if exam_date != "":
+        query_str = "UPDATE C##CEAS_ADMIN.GLOBAL_DATA SET EXAM_DATE = TO_DATE('" + str(exam_date) + "','YYYY-MM-DD')"
+        print(query_str)
+        cursor.execute(query_str)
+    if result_date != "":
+        query_str = "UPDATE C##CEAS_ADMIN.GLOBAL_DATA SET RESULT_DATE = TO_DATE('" + str(result_date) + "','YYYY-MM-DD')"
+        print(query_str)
+        cursor.execute(query_str)
+    if mig_date != "":
+        query_str = "UPDATE C##CEAS_ADMIN.GLOBAL_DATA SET MIGRATION_DATE = TO_DATE('" + str(mig_date) + "','YYYY-MM-DD')"
+        print(query_str)
+        cursor.execute(query_str)
+    if state != "":
+        query_str = "UPDATE C##CEAS_ADMIN.GLOBAL_DATA SET SYSTEM_STATE = " + state
+        print(query_str)
+        cursor.execute(query_str)
+    if msg != "":
+        query_str = "UPDATE C##CEAS_ADMIN.GLOBAL_DATA SET ADMIN_MESSAGE = '" + str(msg) + "'"
+        print(query_str)
+        cursor.execute(query_str)
+    
+
+    flash_msg = 'Successfully Updated Global Data'
+    flash(flash_msg)
+    return redirect(url_for('index'))
+
+    # ENTRY_NO INTEGER NOT NULL,
+	# SYSTEM_STATE INTEGER DEFAULT 1,
+	# APPLY_FIRST_DATE DATE DEFAULT SYSDATE,
+	# APPLY_LAST_DATE DATE DEFAULT to_date('5-4-2022','dd-mm-yyyy'),
+	# EXAM_DATE DATE DEFAULT to_date('14-05-2022','dd-mm-yyyy'),
+	# RESULT_DATE DATE DEFAULT to_date('1-06-2022','dd-mm-yyyy'),
+	# MIGRATION_DATE DATE DEFAULT to_date('15-06-2022','dd-mm-yyyy'),
+	# ADMIN_MESSAGE VARCHAR2(4000)
+
+
+
+
+
 @app.route('/merit_list/<int:page>')
 def merit_list(page):
     if page > 50 or page <1:
@@ -166,4 +232,5 @@ if __name__ == '__main__':
     pool = start_pool()
 
     # Start a webserver
-    app.run(port=int(1530))
+
+    app.run(port=int(1530), debug = True)
