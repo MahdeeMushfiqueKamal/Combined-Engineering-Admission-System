@@ -142,50 +142,26 @@ def update_marks():
         flash(flash_msg)
         return redirect(url_for('index'))
 
-    if math_mark == "":
-        flash_msg = 'Please Enter Math Mark!'
+    if math_mark == "" or phy_mark == "" or chm_mark=='':
+        flash_msg = 'Marks can not be empty!'
         flash(flash_msg)
         return redirect(url_for('index'))
-    elif math_mark.isdigit():
-        query_str = "UPDATE EXAMINEE SET MATH_MARK = " + str(math_mark) + " WHERE EXAMINEE_ID = " + examinee_id
+    elif not math_mark.isdigit() or not phy_mark.isdigit() or not chm_mark.isdigit():
+        flash_msg = 'Marks must be numbers!'
+        flash(flash_msg)
+        return redirect(url_for('index'))
+    elif not (int(math_mark) >= 0 and int(math_mark)<=200 and int(phy_mark) >= 0 and int(phy_mark)<=200 and int(chm_mark) >= 0 and int(chm_mark)<=200):
+        flash_msg = 'Marks must be between 0 to 200!'
+        flash(flash_msg)
+        return redirect(url_for('index'))    
+    else:    
+        query_str = "UPDATE EXAMINEE SET MATH_MARK = " + str(math_mark) + ' ,PHY_MARK = ' + str(phy_mark) + " ,CHM_MARK = " + str(chm_mark) + " WHERE EXAMINEE_ID = " + examinee_id
         print(query_str)
         cursor.execute(query_str)
-    else:
-        flash_msg = 'Math Mark is incorrect!'
+        connection.commit()
+        flash_msg = 'Successfully Updated The Marks for Examinee ID ' + examinee_id
         flash(flash_msg)
         return redirect(url_for('index'))
-
-    if phy_mark == "":
-        flash_msg = 'Please Enter Physics Mark!'
-        flash(flash_msg)
-        return redirect(url_for('index'))
-    elif phy_mark.isdigit():
-        query_str = "UPDATE EXAMINEE SET PHY_MARK = " + str(phy_mark) + " WHERE EXAMINEE_ID = " + examinee_id
-        print(query_str)
-        cursor.execute(query_str)
-    else:
-        flash_msg = 'Physics Mark is incorrect!'
-        flash(flash_msg)
-        return redirect(url_for('index'))
-
-    if chm_mark == "":
-        flash_msg = 'Please Enter Chemistry Mark!'
-        flash(flash_msg)
-        return redirect(url_for('index'))
-    elif chm_mark.isdigit():
-        query_str = "UPDATE EXAMINEE SET CHM_MARK = " + str(chm_mark) + " WHERE EXAMINEE_ID = " + examinee_id
-        print(query_str)
-        cursor.execute(query_str)
-    else:
-        flash_msg = 'Chemistry Mark is incorrect!'
-        flash(flash_msg)
-        return redirect(url_for('index'))
-
-    connection.commit()
-
-    flash_msg = 'Successfully Updated The Marks for Examinee ID ' + examinee_id
-    flash(flash_msg)
-    return redirect(url_for('index'))
 
 
 @app.route('/merit_list/<int:page>')
@@ -252,6 +228,41 @@ def generate_merit_list():
     flash('Merit List has been generated')
     return redirect(url_for('index'))
 
+@app.route('/admin/mark_from_csv',methods=['POST'])
+def mark_from_csv():
+    connection = pool.acquire()
+    cursor = connection.cursor()
+    csv_file = request.files.get('CSV_file')
+    for line in csv_file.readlines():
+        line = line.decode('ascii').strip()
+        print(line)
+        line = line.split(',')
+        if len(line) != 4:
+            flash('Invalid input in csv file')
+            return redirect(url_for('index'))
+        examinee_id = line[0]
+        math_mark = line[1]
+        phy_mark = line[2]
+        chm_mark = line[3]
+        print('One line update from CSV: ',examinee_id,math_mark,phy_mark,chm_mark)
+        
+        query_str = 'SELECT * FROM EXAMINEE WHERE EXAMINEE_ID = '+examinee_id
+        cursor.execute(query_str)
+        if cursor.fetchone() == None:
+            flash_msg = 'Examinee Does not exists! '
+            flash(flash_msg)
+            return redirect(url_for('index'))
+        if not (int(math_mark) >= 0 and int(math_mark)<=200 and int(phy_mark) >= 0 and int(phy_mark)<=200 and int(chm_mark) >= 0 and int(chm_mark)<=200):
+            flash_msg = 'Marks must be between 0 to 200! Invalid input in csv file'
+            flash(flash_msg)
+            return redirect(url_for('index'))    
+        else:    
+            query_str = "UPDATE EXAMINEE SET MATH_MARK = " + str(math_mark) + ' ,PHY_MARK = ' + str(phy_mark) + " ,CHM_MARK = " + str(chm_mark) + " WHERE EXAMINEE_ID = " + examinee_id
+            print(query_str)
+            cursor.execute(query_str)
+    connection.commit()
+    flash('Marks are updated from CSV File')
+    return redirect(url_for('index'))
 
 
 @app.errorhandler(404)

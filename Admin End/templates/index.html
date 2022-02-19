@@ -156,6 +156,15 @@
             <div class="col-md-4">
                 <h3> Update mark from a CSV file. </h3>
                 <p>The CSV file should contain 4 column. Examinee_ID, math_mark, phy_mark and chm_mark</p>
+                <form action = "{{url_for('mark_from_csv')}}" method = "post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="CSV_file"> CSV File: </label><br>
+                        <input type="file" class="form-control-file" name="CSV_file" id="CSV_file">
+                        <small id="CSV_file" class="form-text text-muted"> Upload CSV file only.</small>
+                    </div>
+
+                    <br>    <button type="submit" class="btn btn-primary">Submit CSV</button>
+                </form>
                 
             </div>
             <div class="col-md-4">
