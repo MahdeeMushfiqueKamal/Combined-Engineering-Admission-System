@@ -135,6 +135,13 @@ def update_marks():
     phy_mark = request.form['PHY_MARK'] 
     chm_mark = request.form['CHM_MARK'] 
 
+    query_str = 'SELECT * FROM EXAMINEE WHERE EXAMINEE_ID = '+examinee_id
+    cursor.execute(query_str)
+    if cursor.fetchone() == None:
+        flash_msg = 'Examinee Does not exists! '
+        flash(flash_msg)
+        return redirect(url_for('index'))
+
     if math_mark == "":
         flash_msg = 'Please Enter Math Mark!'
         flash(flash_msg)
@@ -209,68 +216,41 @@ def generate_merit_list():
     connection = pool.acquire()
     cursor = connection.cursor()
     #for merit list
-    query_str = '''SELECT RANK() OVER( ORDER BY MATH_MARK+PHY_MARK+CHM_MARK DESC, MATH_MARK DESC, PHY_MARK DESC, 
-    CHM_MARK DESC, BIRTHDATE DESC, NAME ASC ) table_rank,EXAMINEE_ID 
-    FROM EXAMINEE OFFSET 0 ROWS FETCH NEXT 5000 ROWS ONLY'''
-
+    query_str = '''
+    DECLARE
+		rnk NUMBER;
+		ex_id NUMBER;
+    BEGIN
+        for r in (SELECT RANK() OVER( ORDER BY MATH_MARK+PHY_MARK+CHM_MARK DESC, MATH_MARK DESC, PHY_MARK DESC, CHM_MARK DESC, BIRTHDATE DESC, NAME ASC ) table_rank,EXAMINEE_ID FROM EXAMINEE OFFSET 0 ROWS FETCH NEXT 5000 ROWS ONLY)
+        LOOP 
+            rnk := r.TABLE_RANK;
+            ex_id := r.EXAMINEE_ID;
+            UPDATE EXAMINEE SET MERIT_POS = rnk WHERE EXAMINEE_ID = ex_id;
+        END LOOP;
+    END;
+    '''
     cursor.execute(query_str)
-    rows = cursor.fetchall()
-    for row in rows: 
-        query_str = 'UPDATE EXAMINEE SET MERIT_POS = '+str(row[0])+' WHERE EXAMINEE_ID = '+str(row[1])
-        cursor.execute(query_str)
     
     #for quota list
-    query_str = '''SELECT RANK() OVER( ORDER BY MATH_MARK+PHY_MARK+CHM_MARK DESC, MATH_MARK DESC, PHY_MARK DESC, 
-    CHM_MARK DESC, BIRTHDATE DESC, NAME ASC ) table_rank,EXAMINEE_ID 
-    FROM EXAMINEE WHERE QUOTA_STATUS=\'Y\' OFFSET 0 ROWS FETCH NEXT 100 ROWS ONLY'''
-
+    query_str = '''
+    DECLARE
+        q_rnk NUMBER;
+        ex_id NUMBER;
+	BEGIN
+		for r in (SELECT RANK() OVER( ORDER BY MATH_MARK+PHY_MARK+CHM_MARK DESC, MATH_MARK DESC, PHY_MARK DESC, 
+        CHM_MARK DESC, BIRTHDATE DESC, NAME ASC ) table_rank,EXAMINEE_ID 
+        FROM EXAMINEE WHERE QUOTA_STATUS='Y' OFFSET 0 ROWS FETCH NEXT 100 ROWS ONLY)
+        LOOP 
+                q_rnk := r.TABLE_RANK;
+                ex_id := r.EXAMINEE_ID;
+                UPDATE EXAMINEE SET QUOTA_POS = q_rnk WHERE EXAMINEE_ID = ex_id;
+        END LOOP;
+    END;
+    '''
     cursor.execute(query_str)
-    rows = cursor.fetchall()
-    for row in rows: 
-        query_str = 'UPDATE EXAMINEE SET QUOTA_POS = '+str(row[0])+' WHERE EXAMINEE_ID = '+str(row[1])
-        cursor.execute(query_str)
-
     connection.commit()
     flash('Merit List has been generated')
     return redirect(url_for('index'))
-
-
-@app.route('/admin/generate_mark_list')
-def generate_mark_list():
-    connection = pool.acquire()
-    cursor = connection.cursor()
-
-    flash('Boo')
-    return redirect(url_for('index'))
-
-
-
-@app.route('/admin/update_application_date')
-def update_application_date():
-    connection = pool.acquire()
-    cursor = connection.cursor()
-    flash('Boo')
-
-    return redirect(url_for('index'))
-
-@app.route('/admin/update_exam_date')
-def update_exam_date():
-    connection = pool.acquire()
-    cursor = connection.cursor()
-    flash('Boo')
-
-    return redirect(url_for('index'))
-
-
-
-@app.route('/admin/update_msg')
-def update_msg():
-    connection = pool.acquire()
-    cursor = connection.cursor()
-    flash('Boo')
-
-    return redirect(url_for('index'))
-
 
 
 
