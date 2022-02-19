@@ -39,7 +39,7 @@ def index():
     cursor = connection.cursor()
     cursor.execute('''SELECT ADMIN_MESSAGE,TO_CHAR(APPLY_FIRST_DATE,'Month DD, YYYY'),TO_CHAR(APPLY_LAST_DATE,'Month DD, YYYY'),
     TO_CHAR(EXAM_DATE,'Month DD, YYYY'),TO_CHAR(RESULT_DATE,'Month DD, YYYY'),TO_CHAR(MIGRATION_DATE,'Month DD, YYYY') 
-    FROM C##CEAS_ADMIN.GLOBAL_DATA ORDER BY ENTRY_NO''')
+    FROM C##CEAS_ADMIN.GLOBAL_DATA WHERE ENTRY_NO = 1''')
     GLOBAL_DATA = cursor.fetchall()
 
     return render_template('index.html',flash_msg=flash_msg, GLOBAL_DATA=GLOBAL_DATA)
@@ -78,35 +78,36 @@ def process_update():
 
     
     if start_date != "":
-        query_str = "UPDATE C##CEAS_ADMIN.GLOBAL_DATA SET APPLY_FIRST_DATE = TO_DATE('" + str(start_date) + "','YYYY-MM-DD')"
+        query_str = "UPDATE GLOBAL_DATA SET APPLY_FIRST_DATE = TO_DATE('" + str(start_date) + "','YYYY-MM-DD') WHERE ENTRY_NO = 1"
         print(query_str)
         cursor.execute(query_str)
 
     if end_date != "":
-        query_str = "UPDATE C##CEAS_ADMIN.GLOBAL_DATA SET APPLY_LAST_DATE = TO_DATE('" + str(end_date) + "','YYYY-MM-DD')"
+        query_str = "UPDATE GLOBAL_DATA SET APPLY_LAST_DATE = TO_DATE('" + str(end_date) + "','YYYY-MM-DD') WHERE ENTRY_NO = 1"
         print(query_str)
         cursor.execute(query_str)
     if exam_date != "":
-        query_str = "UPDATE C##CEAS_ADMIN.GLOBAL_DATA SET EXAM_DATE = TO_DATE('" + str(exam_date) + "','YYYY-MM-DD')"
+        query_str = "UPDATE GLOBAL_DATA SET EXAM_DATE = TO_DATE('" + str(exam_date) + "','YYYY-MM-DD') WHERE ENTRY_NO = 1"
         print(query_str)
         cursor.execute(query_str)
     if result_date != "":
-        query_str = "UPDATE C##CEAS_ADMIN.GLOBAL_DATA SET RESULT_DATE = TO_DATE('" + str(result_date) + "','YYYY-MM-DD')"
+        query_str = "UPDATE GLOBAL_DATA SET RESULT_DATE = TO_DATE('" + str(result_date) + "','YYYY-MM-DD') WHERE ENTRY_NO = 1"
         print(query_str)
         cursor.execute(query_str)
     if mig_date != "":
-        query_str = "UPDATE C##CEAS_ADMIN.GLOBAL_DATA SET MIGRATION_DATE = TO_DATE('" + str(mig_date) + "','YYYY-MM-DD')"
+        query_str = "UPDATE GLOBAL_DATA SET MIGRATION_DATE = TO_DATE('" + str(mig_date) + "','YYYY-MM-DD') WHERE ENTRY_NO = 1"
         print(query_str)
         cursor.execute(query_str)
-    if state != "":
-        query_str = "UPDATE C##CEAS_ADMIN.GLOBAL_DATA SET SYSTEM_STATE = " + state
+    if state != '0':
+        query_str = "UPDATE GLOBAL_DATA SET SYSTEM_STATE = " + state + ' WHERE ENTRY_NO = 1'
         print(query_str)
         cursor.execute(query_str)
     if msg != "":
-        query_str = "UPDATE C##CEAS_ADMIN.GLOBAL_DATA SET ADMIN_MESSAGE = '" + str(msg) + "'"
+        query_str = "UPDATE GLOBAL_DATA SET ADMIN_MESSAGE = '" + str(msg) + "' WHERE ENTRY_NO = 1"
         print(query_str)
         cursor.execute(query_str)
     
+    connection.commit()
 
     flash_msg = 'Successfully Updated Global Data'
     flash(flash_msg)
