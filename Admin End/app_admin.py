@@ -123,7 +123,62 @@ def process_update():
 	# ADMIN_MESSAGE VARCHAR2(4000)
 
 
+@app.route('/update_marks',methods=['POST'])
+def update_marks():
+    print("Mark Update called")
+    print(request.form)
+    connection = pool.acquire()
+    cursor = connection.cursor()
 
+    examinee_id = request.form['EXAMINEE_ID']
+    math_mark = request.form['MATH_MARK'] 
+    phy_mark = request.form['PHY_MARK'] 
+    chm_mark = request.form['CHM_MARK'] 
+
+    if math_mark == "":
+        flash_msg = 'Please Enter Math Mark!'
+        flash(flash_msg)
+        return redirect(url_for('index'))
+    elif math_mark.isdigit():
+        query_str = "UPDATE EXAMINEE SET MATH_MARK = " + str(math_mark) + " WHERE EXAMINEE_ID = " + examinee_id
+        print(query_str)
+        cursor.execute(query_str)
+    else:
+        flash_msg = 'Math Mark is incorrect!'
+        flash(flash_msg)
+        return redirect(url_for('index'))
+
+    if phy_mark == "":
+        flash_msg = 'Please Enter Physics Mark!'
+        flash(flash_msg)
+        return redirect(url_for('index'))
+    elif phy_mark.isdigit():
+        query_str = "UPDATE EXAMINEE SET PHY_MARK = " + str(phy_mark) + " WHERE EXAMINEE_ID = " + examinee_id
+        print(query_str)
+        cursor.execute(query_str)
+    else:
+        flash_msg = 'Physics Mark is incorrect!'
+        flash(flash_msg)
+        return redirect(url_for('index'))
+
+    if chm_mark == "":
+        flash_msg = 'Please Enter Chemistry Mark!'
+        flash(flash_msg)
+        return redirect(url_for('index'))
+    elif chm_mark.isdigit():
+        query_str = "UPDATE EXAMINEE SET CHM_MARK = " + str(chm_mark) + " WHERE EXAMINEE_ID = " + examinee_id
+        print(query_str)
+        cursor.execute(query_str)
+    else:
+        flash_msg = 'Chemistry Mark is incorrect!'
+        flash(flash_msg)
+        return redirect(url_for('index'))
+
+    connection.commit()
+
+    flash_msg = 'Successfully Updated The Marks for Examinee ID ' + examinee_id
+    flash(flash_msg)
+    return redirect(url_for('index'))
 
 
 @app.route('/merit_list/<int:page>')
