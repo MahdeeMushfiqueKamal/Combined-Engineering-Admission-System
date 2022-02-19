@@ -37,8 +37,8 @@ def index():
     flash_msg = get_flashed_messages()
     connection = pool.acquire()
     cursor = connection.cursor()
-    cursor.execute('''SELECT ADMIN_MESSAGE,TO_CHAR(APPLY_FIRST_DATE,'MONTH DD, YYYY'),TO_CHAR(APPLY_LAST_DATE,'MONTH DD, YYYY'),
-    TO_CHAR(EXAM_DATE,'MONTH DD, YYYY'),TO_CHAR(RESULT_DATE,'MONTH DD, YYYY'),TO_CHAR(MIGRATION_DATE,'MONTH DD, YYYY') 
+    cursor.execute('''SELECT ADMIN_MESSAGE,TO_CHAR(APPLY_FIRST_DATE,'Month DD, YYYY'),TO_CHAR(APPLY_LAST_DATE,'Month DD, YYYY'),
+    TO_CHAR(EXAM_DATE,'Month DD, YYYY'),TO_CHAR(RESULT_DATE,'Month DD, YYYY'),TO_CHAR(MIGRATION_DATE,'Month DD, YYYY') 
     FROM C##CEAS_ADMIN.GLOBAL_DATA ORDER BY ENTRY_NO''')
     GLOBAL_DATA = cursor.fetchall()
 

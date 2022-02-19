@@ -33,6 +33,12 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/dashboard">Dashboard</a>
                     </li>
+
+                    {% if 'examinee_id' in session %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{url_for('logout')}}"> Logout </a>
+                    </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>

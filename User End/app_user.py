@@ -229,4 +229,4 @@ if __name__ == '__main__':
     pool = start_pool()
 
     # Start a webserver
-    app.run(port=int(1520), debug=False)
+    app.run(port=int(1520), debug=True)
