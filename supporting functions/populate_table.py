@@ -18,12 +18,14 @@ for line in fhand1.readlines():
 fhand1.close()
 
 #populate uni-sub
+i=1
 fhand1 = open('uni_sub.csv')
 for line in fhand1.readlines():
     line = line.split(',')
 
-    query_str = 'INSERT INTO UNI_SUB(UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES(\''+line[0]+'\',\''+line[1]+'\','+line[2]+','+line[3].strip()+');\n'
+    query_str = 'INSERT INTO UNI_SUB(UNI_SUB_ID,UNI_ID,SUB_ID,CAPASITY,QUOTA_CAPASITY) VALUES( '+ str(i) +',\''+line[0]+'\',\''+line[1]+'\','+line[2]+','+line[3].strip()+');\n'
     outfile.write(query_str)
+    i+=1
 fhand1.close()
 
 

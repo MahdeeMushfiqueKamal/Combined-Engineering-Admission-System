@@ -2,6 +2,7 @@ from fileinput import filename
 import os,sys,hashlib,cx_Oracle
 from pathlib import Path
 from flask import *
+from matplotlib.style import available
 
 if sys.platform.startswith("darwin"):
     cx_Oracle.init_oracle_client(lib_dir=os.environ.get("HOME")+"/instantclient_19_3")
@@ -77,7 +78,9 @@ def apply():
     cursor = connection.cursor()
     seats = cursor.execute('SELECT CENTER_ID,CAPASITY-FILLED FROM C##CEAS_ADMIN.EXAM_CENTER').fetchall()
     print('printing seats',seats)
-    return render_template('apply_form.html',flash_msg=flash_msg,seats=seats)
+    cursor.execute('SELECT SYSTEM_STATE FROM C##CEAS_ADMIN.GLOBAL_DATA WHERE ENTRY_NO = 1')
+    state = cursor.fetchall()[0][0]
+    return render_template('apply_form.html',flash_msg=flash_msg,seats=seats,state=state)
 
 @app.route('/process_apply',methods=['POST'])
 def process_apply():
@@ -202,7 +205,10 @@ def merit_list(page):
     query_str = 'SELECT MERIT_POS, EXAMINEE_ID, NAME, PHY_MARK, CHM_MARK, MATH_MARK FROM C##CEAS_ADMIN.EXAMINEE WHERE MERIT_POS IS NOT NULL ORDER BY MERIT_POS'
     cursor.execute(query_str)
     merit_rows = cursor.fetchall()    
-    
+    cursor.execute('SELECT SYSTEM_STATE FROM C##CEAS_ADMIN.GLOBAL_DATA WHERE ENTRY_NO = 1')
+    state = cursor.fetchall()[0][0]
+    if state < 3: 
+        merit_rows = None
     return render_template('merit_list.html',merit_rows=merit_rows,page=page)
 
 
@@ -213,7 +219,45 @@ def quota_merit_list():
     query_str = 'SELECT QUOTA_POS, EXAMINEE_ID, NAME, PHY_MARK, CHM_MARK, MATH_MARK FROM C##CEAS_ADMIN.EXAMINEE WHERE QUOTA_POS IS NOT NULL ORDER BY QUOTA_POS'
     cursor.execute(query_str)
     quota_rows = cursor.fetchall()
+    cursor.execute('SELECT SYSTEM_STATE FROM C##CEAS_ADMIN.GLOBAL_DATA WHERE ENTRY_NO = 1')
+    state = cursor.fetchall()[0][0]
+    if state < 3: 
+        quota_rows = None
     return render_template('quota_merit_list.html',quota_rows=quota_rows)
+
+@app.route('/subject_choice')
+def subject_choice():
+    flash_msg = get_flashed_messages()
+    print(flash_msg)
+    if 'examinee_id' not in session:
+        flash('You need to login before entering Dashboard')
+        return redirect(url_for('login'))
+    examinee_id = session['examinee_id']
+    connection = pool.acquire()
+    cursor = connection.cursor()
+    cursor.execute('SELECT * from C##CEAS_ADMIN.EXAMINEE WHERE EXAMINEE_ID = :id',[examinee_id])
+    examinee_details = cursor.fetchone()
+    print(examinee_details)
+
+    merit_position = examinee_details[10]
+    print(merit_position, type(merit_position))
+
+    # selected subjects
+    query_str = 'SELECT CS.PRIORITY_NO, US.UNI_ID, S.NAME FROM C##CEAS_ADMIN.CHOICE_LIST CS JOIN C##CEAS_ADMIN.UNI_SUB US ON US.UNI_SUB_ID = CS.UNI_SUB_ID JOIN C##CEAS_ADMIN.SUBJECT S ON US.SUB_ID = S.SUB_ID WHERE MERIT_POS =' +str(merit_position) + ' ORDER BY PRIORITY_NO'
+    print(query_str)
+    cursor.execute(query_str)
+    selected_subjects = cursor.fetchall()
+    print(selected_subjects)
+
+    # available subjects
+    query_str = ''' SELECT US.UNI_SUB_ID, US.UNI_ID, S.NAME FROM C##CEAS_ADMIN.UNI_SUB US 
+    JOIN C##CEAS_ADMIN.SUBJECT S ON US.SUB_ID = S.SUB_ID
+    '''
+    cursor.execute(query_str)
+    available_subjects = cursor.fetchall()
+    
+    return render_template('subject_choice_form.html',flash_msg=flash_msg,examinee_details=examinee_details,
+    available_subjects=available_subjects, selected_subjects=selected_subjects)
 
 @app.errorhandler(404)
 def page_not_found(error):

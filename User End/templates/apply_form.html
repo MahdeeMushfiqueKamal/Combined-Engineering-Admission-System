@@ -5,6 +5,7 @@
     <div class="card-body">
         <div class="row">
             <div class="col-md-3"></div>
+            {% if state == 1 %}
             <div class="col-md-6">
                 <h2> Apply for Combined Engineering Admission Test </h2>
                 <!-- Flash Message -->
@@ -69,6 +70,11 @@
                   </form>
                 <!-- Apply form ends -->
             </div>
+            {% else %}
+            <div class="col-md-6">
+                <h2 style="color: red;"> Application Deadline is over. </h2>
+            </div>
+            {% endif %}
             <div class="col-md-3"></div>
         </div>
     </div>
