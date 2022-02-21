@@ -32,7 +32,7 @@ def start_pool():
 app = Flask(__name__)
 app.secret_key  = '36610328caf5968c435a13abc5d70b4c'
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
-app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png', '.gif']
+app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png']
 app.UPLOAD_PATH = str(Path(__file__).parent.absolute()) + '\\static\\profile_pic\\'
 
 
@@ -230,7 +230,7 @@ def subject_choice():
     flash_msg = get_flashed_messages()
     print(flash_msg)
     if 'examinee_id' not in session:
-        flash('You need to login before entering Dashboard')
+        flash('You need to login before providing subject choice')
         return redirect(url_for('login'))
     examinee_id = session['examinee_id']
     connection = pool.acquire()
@@ -238,9 +238,7 @@ def subject_choice():
     cursor.execute('SELECT * from C##CEAS_ADMIN.EXAMINEE WHERE EXAMINEE_ID = :id',[examinee_id])
     examinee_details = cursor.fetchone()
     print(examinee_details)
-
     merit_position = examinee_details[10]
-    print(merit_position, type(merit_position))
 
     # selected subjects
     query_str = 'SELECT CS.PRIORITY_NO, US.UNI_ID, S.NAME FROM C##CEAS_ADMIN.CHOICE_LIST CS JOIN C##CEAS_ADMIN.UNI_SUB US ON US.UNI_SUB_ID = CS.UNI_SUB_ID JOIN C##CEAS_ADMIN.SUBJECT S ON US.SUB_ID = S.SUB_ID WHERE MERIT_POS =' +str(merit_position) + ' ORDER BY PRIORITY_NO'
@@ -252,12 +250,42 @@ def subject_choice():
     # available subjects
     query_str = ''' SELECT US.UNI_SUB_ID, US.UNI_ID, S.NAME FROM C##CEAS_ADMIN.UNI_SUB US 
     JOIN C##CEAS_ADMIN.SUBJECT S ON US.SUB_ID = S.SUB_ID
-    '''
+    MINUS 
+    SELECT US.UNI_SUB_ID, US.UNI_ID, S.NAME FROM C##CEAS_ADMIN.CHOICE_LIST CS 
+    JOIN C##CEAS_ADMIN.UNI_SUB US ON US.UNI_SUB_ID = CS.UNI_SUB_ID JOIN C##CEAS_ADMIN.SUBJECT S ON US.SUB_ID = S.SUB_ID 
+    WHERE MERIT_POS = {merit}'''.format(merit = str(merit_position))
     cursor.execute(query_str)
     available_subjects = cursor.fetchall()
     
     return render_template('subject_choice_form.html',flash_msg=flash_msg,examinee_details=examinee_details,
     available_subjects=available_subjects, selected_subjects=selected_subjects)
+
+@app.route('/process_subject_choice/<int:uni_sub_id>')
+def process_subject_choice(uni_sub_id):
+    print('Process Subject Choice called for ',uni_sub_id)
+    if 'examinee_id' not in session:
+        flash('You need to login before providing subject choice')
+        return redirect(url_for('login'))
+    examinee_id = session['examinee_id']
+    connection = pool.acquire()
+    cursor = connection.cursor()
+    cursor.execute('SELECT * from C##CEAS_ADMIN.EXAMINEE WHERE EXAMINEE_ID = :id',[examinee_id])
+    examinee_details = cursor.fetchone()
+    merit_position = examinee_details[10]
+    if uni_sub_id <1 or uni_sub_id >54:
+        flash('invalid subject id')
+        return redirect(url_for('subject_choice'))
+    cursor.execute('SELECT COUNT(*) FROM C##CEAS_ADMIN.CHOICE_LIST WHERE MERIT_POS = :m',[merit_position])
+    already_selected = cursor.fetchone()[0]
+    if already_selected == 10:
+        flash('You have already selected 10 subjects')
+        return redirect(url_for('subject_choice'))
+    query_str = 'INSERT INTO C##CEAS_ADMIN.CHOICE_LIST(MERIT_POS,PRIORITY_NO,UNI_SUB_ID) VALUES ('+ str(merit_position)+','+ str(already_selected+1) +',' + str(uni_sub_id)+')'
+    print(query_str)
+    cursor.execute(query_str)
+    connection.commit()
+    flash('Subject Added')
+    return redirect(url_for('subject_choice'))
 
 @app.errorhandler(404)
 def page_not_found(error):

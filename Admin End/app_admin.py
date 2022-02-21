@@ -113,16 +113,6 @@ def process_update():
     flash(flash_msg)
     return redirect(url_for('index'))
 
-    # ENTRY_NO INTEGER NOT NULL,
-	# SYSTEM_STATE INTEGER DEFAULT 1,
-	# APPLY_FIRST_DATE DATE DEFAULT SYSDATE,
-	# APPLY_LAST_DATE DATE DEFAULT to_date('5-4-2022','dd-mm-yyyy'),
-	# EXAM_DATE DATE DEFAULT to_date('14-05-2022','dd-mm-yyyy'),
-	# RESULT_DATE DATE DEFAULT to_date('1-06-2022','dd-mm-yyyy'),
-	# MIGRATION_DATE DATE DEFAULT to_date('15-06-2022','dd-mm-yyyy'),
-	# ADMIN_MESSAGE VARCHAR2(4000)
-
-
 @app.route('/update_marks',methods=['POST'])
 def update_marks():
     print("Mark Update called")
@@ -191,6 +181,8 @@ def quota_merit_list():
 def generate_merit_list():
     connection = pool.acquire()
     cursor = connection.cursor()
+    cursor.execute('DELETE FROM CHOICE_LIST')
+    cursor.execute('DELETE FROM MERIT_LIST')
     #for merit list
     query_str = '''
     DECLARE
@@ -202,6 +194,7 @@ def generate_merit_list():
             rnk := r.TABLE_RANK;
             ex_id := r.EXAMINEE_ID;
             UPDATE EXAMINEE SET MERIT_POS = rnk WHERE EXAMINEE_ID = ex_id;
+            INSERT INTO MERIT_LIST(MERIT_POS,EXAMINEE_ID) VALUES(rnk,ex_id); 
         END LOOP;
     END;
     '''
