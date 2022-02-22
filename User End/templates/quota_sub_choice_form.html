@@ -1,0 +1,49 @@
+{% extends 'base.html'%}
+{% block body%}
+<div class="buffer" style="min-height: 3rem;"></div>
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                <h2 class="text-center"> Quota Subject Choice form for {{examinee_details[3]}} </h2>
+                <!-- Flash Message -->
+                {% if flash_msg %}
+                <div class="alert alert-warning" role="alert">
+                    {{flash_msg[0]}}
+                </div>
+                <!-- Flash Message Ends-->
+                {% endif %}
+                <!-- Subject Choice form starts-->
+                <br>
+                <p> You may selecet up to 10 subjects from 4 universities as your Quota subject choices list </p>                
+                <b> Merit Position: </b> {{examinee_details[10]}} <br>
+                <b> Quota Position: </b> {{examinee_details[11]}} <br><br>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3> Quota Subject Choice List </h3>
+                        <table class="table table-bordered table-striped thead-dark"> 
+                            <thead><tr> <th>Priority No</th> <th> University and Subject </th> </tr></thead>
+                            {% for row in selected_subjects %}
+                            <tr> 
+                                <td> {{row[0]}} </td> <td> {{row[1]}} - {{row[2]}} </td> 
+                            </tr>
+                            {% endfor %}
+                        </table>
+                        <p> You may clear your choices and choose again. </p>
+                        <a href="{{url_for('process_quota_subject_choice', uni_sub_id = 0)}}" class="btn btn-outline-danger"> Clear Choices </a>
+                    </div>
+    
+                    <div class="col-md-6">
+                        <h3> Available Subjects </h3>
+                        Click on a subject to select. <br><br>
+                        {% for row in available_subjects %}
+                        <a href="{{url_for('process_quota_subject_choice', uni_sub_id = row[0])}}" class="btn btn-outline-dark btn-sm">{{ row[1]}} - {{ row[2]}} </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+        </div>
+    </div>
+</div>
+{% endblock %}

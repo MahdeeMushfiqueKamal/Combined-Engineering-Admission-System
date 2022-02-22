@@ -326,6 +326,91 @@ def process_subject_choice(uni_sub_id):
     flash('Subject Added')
     return redirect(url_for('subject_choice'))
 
+
+@app.route('/quota_subject_choice')
+def quota_subject_choice():
+    flash_msg = get_flashed_messages()
+    print(flash_msg)
+    if 'examinee_id' not in session:
+        flash('You need to login before providing subject choice')
+        return redirect(url_for('login'))
+    examinee_id = session['examinee_id']
+    connection = pool.acquire()
+    cursor = connection.cursor()
+    cursor.execute('SELECT SYSTEM_STATE FROM C##CEAS_ADMIN.GLOBAL_DATA WHERE ENTRY_NO = 1')
+    state = cursor.fetchall()[0][0]
+    if state < 3: 
+        abort(404)
+    cursor.execute('SELECT * from C##CEAS_ADMIN.EXAMINEE WHERE EXAMINEE_ID = :id',[examinee_id])
+    examinee_details = cursor.fetchone()
+    print(examinee_details)
+    quota_position = examinee_details[11]
+
+    # selected subjects
+    query_str = '''
+    SELECT CS.PRIORITY_NO, US.UNI_ID, S.NAME FROM C##CEAS_ADMIN.QUOTA_CHOICE_LIST CS 
+    JOIN C##CEAS_ADMIN.UNI_SUB US ON US.UNI_SUB_ID = CS.UNI_SUB_ID 
+    JOIN C##CEAS_ADMIN.SUBJECT S ON US.SUB_ID = S.SUB_ID WHERE 
+    QUOTA_POS = {q_pos} ORDER BY PRIORITY_NO'''.format(q_pos = str(quota_position))
+    print(query_str)
+    cursor.execute(query_str)
+    selected_subjects = cursor.fetchall()
+    print(selected_subjects)
+
+    # available subjects
+    query_str = ''' SELECT US.UNI_SUB_ID, US.UNI_ID, S.NAME FROM C##CEAS_ADMIN.UNI_SUB US 
+    JOIN C##CEAS_ADMIN.SUBJECT S ON US.SUB_ID = S.SUB_ID WHERE US.QUOTA_CAPASITY <> 0
+    MINUS 
+    SELECT US.UNI_SUB_ID, US.UNI_ID, S.NAME FROM C##CEAS_ADMIN.QUOTA_CHOICE_LIST CS 
+    JOIN C##CEAS_ADMIN.UNI_SUB US ON US.UNI_SUB_ID = CS.UNI_SUB_ID JOIN C##CEAS_ADMIN.SUBJECT S ON US.SUB_ID = S.SUB_ID 
+    WHERE QUOTA_POS = {q_pos}'''.format(q_pos = str(quota_position))
+    print(query_str)
+    cursor.execute(query_str)
+    available_subjects = cursor.fetchall()
+    
+    return render_template('quota_sub_choice_form.html',flash_msg=flash_msg,examinee_details=examinee_details,
+    available_subjects=available_subjects, selected_subjects=selected_subjects)
+
+
+@app.route('/process_quota_subject_choice/<int:uni_sub_id>')
+def process_quota_subject_choice(uni_sub_id):
+    print('Process Quota Subject Choice called for ',uni_sub_id)
+    if 'examinee_id' not in session:
+        flash('You need to login before providing subject choice')
+        return redirect(url_for('login'))
+    examinee_id = session['examinee_id']
+    connection = pool.acquire()
+    cursor = connection.cursor()
+    cursor.execute('SELECT SYSTEM_STATE FROM C##CEAS_ADMIN.GLOBAL_DATA WHERE ENTRY_NO = 1')
+    state = cursor.fetchall()[0][0]
+    if state != 3: 
+        flash('This is not subject Choice Period')
+        return redirect(url_for('quota_subject_choice'))
+    cursor.execute('SELECT * from C##CEAS_ADMIN.EXAMINEE WHERE EXAMINEE_ID = :id',[examinee_id])
+    examinee_details = cursor.fetchone()
+    quota_position = examinee_details[11]
+    if uni_sub_id == 0:
+        query_str = 'DELETE FROM C##CEAS_ADMIN.QUOTA_CHOICE_LIST WHERE QUOTA_POS = ' + str(quota_position)
+        print(query_str)
+        cursor.execute(query_str)
+        connection.commit()
+        flash('Choice List is cleared')
+        return redirect(url_for('quota_subject_choice'))
+    elif uni_sub_id <1 or uni_sub_id >54:
+        flash('invalid subject id')
+        return redirect(url_for('subject_choice'))
+    cursor.execute('SELECT COUNT(*) FROM C##CEAS_ADMIN.QUOTA_CHOICE_LIST WHERE QUOTA_POS = :m',[quota_position])
+    already_selected = cursor.fetchone()[0]
+    if already_selected == 10:
+        flash('You have already selected 10 subjects')
+        return redirect(url_for('quota_subject_choice'))
+    query_str = 'INSERT INTO C##CEAS_ADMIN.QUOTA_CHOICE_LIST(QUOTA_POS,PRIORITY_NO,UNI_SUB_ID) VALUES ('+ str(quota_position)+','+ str(already_selected+1) +',' + str(uni_sub_id)+')'
+    print(query_str)
+    cursor.execute(query_str)
+    connection.commit()
+    flash('Subject Added')
+    return redirect(url_for('quota_subject_choice'))
+
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template('page_not_found.html'), 404

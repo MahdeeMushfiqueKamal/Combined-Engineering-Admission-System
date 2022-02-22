@@ -203,6 +203,8 @@ def generate_merit_list():
     '''
     cursor.execute(query_str)
     
+    cursor.execute('DELETE FROM QUOTA_CHOICE_LIST')
+    cursor.execute('DELETE FROM QUOTA_LIST')
     #for quota list
     query_str = '''
     DECLARE
@@ -216,6 +218,7 @@ def generate_merit_list():
                 q_rnk := r.TABLE_RANK;
                 ex_id := r.EXAMINEE_ID;
                 UPDATE EXAMINEE SET QUOTA_POS = q_rnk WHERE EXAMINEE_ID = ex_id;
+                INSERT INTO QUOTA_LIST(QUOTA_POS,EXAMINEE_ID) VALUES(q_rnk,ex_id); 
         END LOOP;
     END;
     '''

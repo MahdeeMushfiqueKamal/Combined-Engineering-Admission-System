@@ -82,6 +82,23 @@ exception when others then
 	end if;
 end;     
 /
+begin
+execute immediate 'drop table QUOTA_LIST cascade constraints';
+exception when others then
+	if sqlcode <> -942 then
+	raise;
+	end if;
+end;     
+/
+
+begin
+execute immediate 'drop table QUOTA_CHOICE_LIST cascade constraints';
+exception when others then
+	if sqlcode <> -942 then
+	raise;
+	end if;
+end;     
+/
 
 -- create tables
 
@@ -155,6 +172,20 @@ CREATE TABLE MERIT_LIST(
 
 CREATE TABLE CHOICE_LIST(
 	MERIT_POS INTEGER REFERENCES MERIT_LIST(MERIT_POS),
+	PRIORITY_NO INTEGER CHECK (PRIORITY_NO >= 1 AND PRIORITY_NO <= 10),
+	UNI_SUB_ID INTEGER REFERENCES UNI_SUB(UNI_SUB_ID)
+);
+
+
+CREATE TABLE QUOTA_LIST(
+	QUOTA_POS INTEGER NOT NULL PRIMARY KEY,
+	EXAMINEE_ID INTEGER NOT NULL,
+	ADMISSION_STATUS VARCHAR(1) DEFAULT 'N' CHECK (ADMISSION_STATUS in ('Y','N')), 
+	ALLOCATED_TO NUMBER REFERENCES UNI_SUB(UNI_SUB_ID)
+);
+
+CREATE TABLE QUOTA_CHOICE_LIST(
+	QUOTA_POS INTEGER REFERENCES QUOTA_LIST(QUOTA_POS),
 	PRIORITY_NO INTEGER CHECK (PRIORITY_NO >= 1 AND PRIORITY_NO <= 10),
 	UNI_SUB_ID INTEGER REFERENCES UNI_SUB(UNI_SUB_ID)
 );
