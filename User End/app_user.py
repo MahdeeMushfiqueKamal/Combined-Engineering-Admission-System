@@ -193,7 +193,9 @@ def dashboard(examinee_id):
     cursor.execute('SELECT NAME,LOCATION FROM C##CEAS_ADMIN.EXAM_CENTER WHERE CENTER_ID = (SELECT CENTER_ID FROM C##CEAS_ADMIN.EXAMINEE WHERE EXAMINEE_ID = :id)',[examinee_id])
     center_details = cursor.fetchone()
     print(center_details)
-    return render_template('dashboard.html',examinee_details=examinee_details, center_details=center_details,flash_msg=flash_msg)
+    cursor.execute('''SELECT SYSTEM_STATE,TO_CHAR(EXAM_DATE,'Month DD, YYYY') FROM C##CEAS_ADMIN.GLOBAL_DATA WHERE ENTRY_NO = 1''')
+    global_data = cursor.fetchone()
+    return render_template('dashboard.html',examinee_details=examinee_details, center_details=center_details,flash_msg=flash_msg, global_data=global_data)
 
 @app.route('/merit_list/<int:page>')
 def merit_list(page):
@@ -225,6 +227,27 @@ def quota_merit_list():
         quota_rows = None
     return render_template('quota_merit_list.html',quota_rows=quota_rows)
 
+@app.route('/subject_allocation_list/<int:page>')
+def subject_allocation_list(page):
+    if page > 50 or page <1:
+        abort(404)
+    
+    connection = pool.acquire()
+    cursor = connection.cursor()
+    query_str = '''SELECT ML.MERIT_POS, ML.EXAMINEE_ID, E.NAME, US.UNI_ID, S.NAME FROM C##CEAS_ADMIN.MERIT_LIST ML
+    JOIN C##CEAS_ADMIN.EXAMINEE E ON (E.EXAMINEE_ID = ML.EXAMINEE_ID)
+    JOIN C##CEAS_ADMIN.UNI_SUB US ON (ML.ALLOCATED_TO = US.UNI_SUB_ID)
+    JOIN C##CEAS_ADMIN.SUBJECT S ON US.SUB_ID = S.SUB_ID
+    ORDER BY MERIT_POS
+    '''
+    cursor.execute(query_str)
+    sub_allocation_rows = cursor.fetchall()    
+    cursor.execute('SELECT SYSTEM_STATE FROM C##CEAS_ADMIN.GLOBAL_DATA WHERE ENTRY_NO = 1')
+    state = cursor.fetchall()[0][0]
+    if state < 4: 
+        sub_allocation_rows = None
+    return render_template('subject_allocation_list.html',sub_allocation_rows=sub_allocation_rows,page=page)
+
 @app.route('/subject_choice')
 def subject_choice():
     flash_msg = get_flashed_messages()
@@ -235,6 +258,10 @@ def subject_choice():
     examinee_id = session['examinee_id']
     connection = pool.acquire()
     cursor = connection.cursor()
+    cursor.execute('SELECT SYSTEM_STATE FROM C##CEAS_ADMIN.GLOBAL_DATA WHERE ENTRY_NO = 1')
+    state = cursor.fetchall()[0][0]
+    if state < 3: 
+        abort(404)
     cursor.execute('SELECT * from C##CEAS_ADMIN.EXAMINEE WHERE EXAMINEE_ID = :id',[examinee_id])
     examinee_details = cursor.fetchone()
     print(examinee_details)
@@ -269,10 +296,22 @@ def process_subject_choice(uni_sub_id):
     examinee_id = session['examinee_id']
     connection = pool.acquire()
     cursor = connection.cursor()
+    cursor.execute('SELECT SYSTEM_STATE FROM C##CEAS_ADMIN.GLOBAL_DATA WHERE ENTRY_NO = 1')
+    state = cursor.fetchall()[0][0]
+    if state != 3: 
+        flash('This is not subject Choice Period')
+        return redirect(url_for('subject_choice'))
     cursor.execute('SELECT * from C##CEAS_ADMIN.EXAMINEE WHERE EXAMINEE_ID = :id',[examinee_id])
     examinee_details = cursor.fetchone()
     merit_position = examinee_details[10]
-    if uni_sub_id <1 or uni_sub_id >54:
+    if uni_sub_id == 0:
+        query_str = 'DELETE FROM C##CEAS_ADMIN.CHOICE_LIST WHERE MERIT_POS = ' + str(merit_position)
+        print(query_str)
+        cursor.execute(query_str)
+        connection.commit()
+        flash('Choice List is cleared')
+        return redirect(url_for('subject_choice'))
+    elif uni_sub_id <1 or uni_sub_id >54:
         flash('invalid subject id')
         return redirect(url_for('subject_choice'))
     cursor.execute('SELECT COUNT(*) FROM C##CEAS_ADMIN.CHOICE_LIST WHERE MERIT_POS = :m',[merit_position])

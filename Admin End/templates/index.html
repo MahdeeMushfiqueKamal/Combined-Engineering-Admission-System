@@ -9,14 +9,7 @@
             {{flash_msg[0]}}
         </div> 
         {% endif %}
-        <h2> Admin Home Page </h2>
-
-
-        <p> Lorem ipsum, dolor sit amet consectetur adipisicing elit. Explicabo quam accusantium enim fugiat aperiam vero aut soluta nesciunt voluptatum ratione molestiae ad ipsam obcaecati unde, placeat praesentium voluptate. Aspernatur, culpa!
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Animi labore obcaecati doloribus voluptatem, nam at repudiandae ut iure voluptate asperiores pariatur. Eos beatae dolorum excepturi, error quasi optio doloribus iure.
-        </p>
-
-        <br><br>
+        <h1 class="text-center"> Admin Home Page </h1>
         <div class="row">
             <div class="col-md-7">
                 <h3> Important Info </h3>
@@ -177,6 +170,28 @@
 
             </div>
             
+            <div class="col-md-4">
+                <br><br>
+                <h3> Generate Subject Allocation for 1st Run </h3>
+                <p>Generate general and quota merit list. </p>
+
+                <a href="{{url_for('generate_subject_allocation')}}">
+                    <button type="button" class="btn btn-primary float-right"> Subject Allocation 1st Run </button>
+                </a>
+
+            </div>
+
+            <div class="col-md-4">
+                <br><br>
+                <h3> Run migration </h3>
+                <p> Run migration for 2nd/3rd/4th run </p>
+                <p> Students who are not admitted will not get a subject </p>
+
+                <a href="{{url_for('run_migration')}}">
+                    <button type="button" class="btn btn-primary float-right"> Migration Run </button>
+                </a>
+
+            </div>
 
         </div>
         
@@ -185,3 +200,5 @@
 
 
 {% endblock %}
+
+

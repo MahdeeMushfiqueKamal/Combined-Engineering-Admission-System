@@ -23,4 +23,4 @@ grant select on C##CEAS_ADMIN.new_sequence to C##CEAS_USER;
 grant select,insert,update on C##CEAS_ADMIN.EXAMINEE_PERSONAL to C##CEAS_USER;
 grant select on C##CEAS_ADMIN.GLOBAL_DATA to C##CEAS_USER;
 grant select on C##CEAS_ADMIN.MERIT_LIST to C##CEAS_USER;
-grant select,insert,update on C##CEAS_ADMIN.CHOICE_LIST to C##CEAS_USER;
+grant select,insert,delete on C##CEAS_ADMIN.CHOICE_LIST to C##CEAS_USER;

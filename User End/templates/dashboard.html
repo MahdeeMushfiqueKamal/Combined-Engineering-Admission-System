@@ -46,7 +46,7 @@
                     <div class="col-md-5">
                         <br><h5>Exam Details: </h5>
                         <hr>
-                        <b>Exam Date and time: </b> 08/04/2022 10:00 am <br><br>
+                        <b>Exam Date and time: </b> {{global_data[1]}} 10:00 am <br><br>
                         <b>Exam Center: </b>
                         {{ center_details[0] }},<br>
                         {{ center_details[1] }} <br><br>
@@ -73,6 +73,14 @@
                         <b> Merit Position: </b> {{examinee_details[10]}} <br>
                         <b> Quota Position: </b> {{examinee_details[11]}}
                     </div>
+                    {% if global_data[0] > 2 and (examinee_details[10] or examinee_details[11])%}
+                    <div class="col-md-7">
+                        <br><br><h3 class="text-center"> Admission Procedure </h3>
+                        {% if examinee_details[10] %} 
+                        <br><b> View Subject Choice Form: </b> <a href="{{ url_for('subject_choice')}}"> Subject Choice Form </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
                 </div>
                 
                 

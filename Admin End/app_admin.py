@@ -1,5 +1,8 @@
 import os,sys,hashlib,cx_Oracle
+from sqlite3 import Cursor
+from django.db import connection
 from flask import *
+from matplotlib.pyplot import connect
 
 if sys.platform.startswith("darwin"):
     cx_Oracle.init_oracle_client(lib_dir=os.environ.get("HOME")+"/instantclient_19_3")
@@ -257,7 +260,84 @@ def mark_from_csv():
     flash('Marks are updated from CSV File')
     return redirect(url_for('index'))
 
+@app.route('/admin/1st_generate_subject_allocation')
+def generate_subject_allocation():
+    connection = pool.acquire()
+    cursor = connection.cursor()
+    query_str = '''
+    DECLARE
+        Available_seat NUMBER;
+        us_id NUMBER;
+        allotted_sub NUMBER;
 
+    BEGIN
+        FOR m_pos IN 1..5000
+        LOOP
+            --DBMS_OUTPUT.PUT_LINE(M_POS);
+            FOR INNER_R IN (SELECT PRIORITY_NO, UNI_SUB_ID FROM CHOICE_LIST WHERE MERIT_POS = m_pos ORDER BY PRIORITY_NO)
+            LOOP
+                -- FOR each priority-no got a uni sub id
+                us_id := INNER_R.UNI_SUB_ID;
+                SELECT CAPASITY- FILLED into Available_seat FROM UNI_SUB WHERE UNI_SUB_ID = us_id;
+                SELECT ALLOCATED_TO into allotted_sub FROM MERIT_LIST WHERE MERIT_POS = m_pos;
+                IF m_pos <10 THEN
+                DBMS_OUTPUT.PUT_LINE(m_pos);
+                DBMS_OUTPUT.PUT_LINE(us_id);
+                DBMS_OUTPUT.PUT_LINE(Available_seat);
+                DBMS_OUTPUT.PUT_LINE(allotted_sub);
+                END IF;
+                IF Available_seat > 0 AND allotted_sub IS NULL THEN
+                    UPDATE UNI_SUB SET FILLED = (SELECT FILLED FROM UNI_SUB WHERE UNI_SUB_ID = us_id) + 1 WHERE UNI_SUB_ID = us_id;
+                    UPDATE MERIT_LIST SET ALLOCATED_TO = us_id WHERE MERIT_POS = m_pos;
+                END IF;
+            END LOOP;
+        END LOOP;
+    END ;
+    '''
+    cursor.execute(query_str)
+    connection.commit()
+    flash('Subject Allocation for 1st Run is done')
+    return redirect(url_for('index'))
+
+
+@app.route('/admin/run_migration')
+def run_migration():
+    connection = pool.acquire()
+    cursor = connection.cursor()
+    cursor.execute('UPDATE UNI_SUB SET FILLED = 0')
+    cursor.execute('UPDATE MERIT_LIST SET ALLOCATED_TO = NULL')
+    query_str = '''
+    DECLARE
+		m_pos NUMBER;
+		Available_seat NUMBER;
+		us_id NUMBER;
+		allotted_sub NUMBER;
+
+    BEGIN
+        FOR R IN (SELECT MERIT_POS, ADMISSION_STATUS FROM MERIT_LIST ORDER BY MERIT_POS)
+        LOOP
+            IF R.ADMISSION_STATUS = 'ON' THEN
+            m_pos := R.MERIT_POS;
+            --DBMS_OUTPUT.PUT_LINE(M_POS);
+            FOR INNER_R IN (SELECT PRIORITY_NO, UNI_SUB_ID FROM CHOICE_LIST WHERE MERIT_POS = m_pos ORDER BY PRIORITY_NO)
+            LOOP
+                -- FOR each priority-no got a uni sub id
+                us_id := INNER_R.UNI_SUB_ID;
+                SELECT CAPASITY- FILLED into Available_seat FROM UNI_SUB WHERE UNI_SUB_ID = us_id;
+                SELECT ALLOCATED_TO into allotted_sub FROM MERIT_LIST WHERE MERIT_POS = m_pos;
+                IF Available_seat > 0 AND allotted_sub IS NULL THEN
+                        UPDATE UNI_SUB SET FILLED = (SELECT FILLED FROM UNI_SUB WHERE UNI_SUB_ID = us_id) + 1 WHERE UNI_SUB_ID = us_id;
+                        UPDATE MERIT_LIST SET ALLOCATED_TO = us_id WHERE MERIT_POS = m_pos;
+                END IF;
+                END LOOP;
+            END IF;
+        END LOOP;
+    END ;
+    '''
+    cursor.execute(query_str)
+    connection.commit()
+    flash('Migration Run is done')
+    return redirect(url_for('index'))
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template('page_not_found.html'), 404
