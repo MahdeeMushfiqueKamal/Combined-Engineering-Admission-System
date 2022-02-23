@@ -83,8 +83,20 @@
                         {% if examinee_details[11] %} 
                         <br><b> View Quota Subject Choice Form: </b> <a href="{{ url_for('quota_subject_choice')}}"> Quota Subject Choice Form </a>
                         {% endif %}
+
+                        <br><br>
+                        <b>Admission Status :</b>  {% if merit_data[0] == 'Y' %} Admitted {% else %} Not Admitted {% endif %} <br>
+                        <b>Allocated on :</b> {{merit_data[1]}} - {{merit_data[2]}}
+                    </div>
+                    <div class="col-md-5">
+                        {% if examinee_details[11] %} 
+                        <br><br><br><br> <h5> Admission on Quota </h5>
+                        <b>Admission Status :</b>  {% if quota_data[0] == 'Y' %} Admitted {% else %} Not Admitted {% endif %} <br>
+                        <b>Allocated on :</b> {{quota_data[1]}} - {{quota_data[2]}}
+                        {% endif %}
                     </div>
                     {% endif %}
+
                 </div>
                 
                 

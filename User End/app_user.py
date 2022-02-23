@@ -195,7 +195,13 @@ def dashboard(examinee_id):
     print(center_details)
     cursor.execute('''SELECT SYSTEM_STATE,TO_CHAR(EXAM_DATE,'Month DD, YYYY') FROM C##CEAS_ADMIN.GLOBAL_DATA WHERE ENTRY_NO = 1''')
     global_data = cursor.fetchone()
-    return render_template('dashboard.html',examinee_details=examinee_details, center_details=center_details,flash_msg=flash_msg, global_data=global_data)
+    cursor.execute('SELECT ML.ADMISSION_STATUS, US.UNI_ID, S.NAME FROM C##CEAS_ADMIN.MERIT_LIST ML JOIN C##CEAS_ADMIN.UNI_SUB US ON (ML.ALLOCATED_TO = US.UNI_SUB_ID) JOIN C##CEAS_ADMIN.SUBJECT S ON (US.SUB_ID = S.SUB_ID) WHERE ML.EXAMINEE_ID = :id',[examinee_id])
+    merit_data = cursor.fetchone()
+
+    cursor.execute('SELECT QL.ADMISSION_STATUS, US.UNI_ID, S.NAME FROM C##CEAS_ADMIN.QUOTA_LIST QL JOIN C##CEAS_ADMIN.UNI_SUB US ON (QL.ALLOCATED_TO = US.UNI_SUB_ID) JOIN C##CEAS_ADMIN.SUBJECT S ON (US.SUB_ID = S.SUB_ID) WHERE QL.EXAMINEE_ID = :id',[examinee_id])
+    quota_data = cursor.fetchone()
+    return render_template('dashboard.html',examinee_details=examinee_details, center_details=center_details,
+    flash_msg=flash_msg, global_data=global_data, merit_data=merit_data, quota_data=quota_data)
 
 @app.route('/merit_list/<int:page>')
 def merit_list(page):
@@ -247,6 +253,26 @@ def subject_allocation_list(page):
     if state < 4: 
         sub_allocation_rows = None
     return render_template('subject_allocation_list.html',sub_allocation_rows=sub_allocation_rows,page=page)
+
+
+@app.route('/quota_subject_allocation_list')
+def quota_subject_allocation_list():
+    connection = pool.acquire()
+    cursor = connection.cursor()
+    query_str = '''SELECT ML.QUOTA_POS, ML.EXAMINEE_ID, E.NAME, US.UNI_ID, S.NAME FROM C##CEAS_ADMIN.QUOTA_LIST ML
+    JOIN C##CEAS_ADMIN.EXAMINEE E ON (E.EXAMINEE_ID = ML.EXAMINEE_ID)
+    JOIN C##CEAS_ADMIN.UNI_SUB US ON (ML.ALLOCATED_TO = US.UNI_SUB_ID)
+    JOIN C##CEAS_ADMIN.SUBJECT S ON US.SUB_ID = S.SUB_ID
+    ORDER BY QUOTA_POS
+    '''
+    print(query_str)
+    cursor.execute(query_str)
+    quota_sub_rows = cursor.fetchall()    
+    cursor.execute('SELECT SYSTEM_STATE FROM C##CEAS_ADMIN.GLOBAL_DATA WHERE ENTRY_NO = 1')
+    state = cursor.fetchall()[0][0]
+    if state < 4: 
+        quota_sub_rows = None
+    return render_template('quota_subject_allocation_list.html',quota_sub_rows=quota_sub_rows)
 
 @app.route('/subject_choice')
 def subject_choice():

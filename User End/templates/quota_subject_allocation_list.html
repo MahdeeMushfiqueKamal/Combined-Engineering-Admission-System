@@ -1,0 +1,33 @@
+{% extends 'base.html'%}
+{% block body%}
+
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-8">
+                <h2> Quota Subject Allocation List </h2>
+                {% if quota_sub_rows %}
+                <table class="table">
+                    <thead>
+                        <th> Quota Position </th> <th> Examinee ID </th> <th>Name</th> <th> University </th> <th> Subject</th>
+                    </thead>
+                    {% for row in quota_sub_rows %}
+                    <tr>
+                        <td>{{ row[0]}}</td> <td>{{ row[1]}}</td> <td>{{ row[2]}}</td> <td>{{ row[3]}}</td> <td>{{ row[4]}}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% else %}
+                <p> Result has not been publised yet</p>
+                {% endif %}
+
+
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+
+{% endblock body %}

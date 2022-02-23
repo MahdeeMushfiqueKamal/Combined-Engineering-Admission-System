@@ -283,15 +283,36 @@ def generate_subject_allocation():
                 us_id := INNER_R.UNI_SUB_ID;
                 SELECT CAPASITY- FILLED into Available_seat FROM UNI_SUB WHERE UNI_SUB_ID = us_id;
                 SELECT ALLOCATED_TO into allotted_sub FROM MERIT_LIST WHERE MERIT_POS = m_pos;
-                IF m_pos <10 THEN
-                DBMS_OUTPUT.PUT_LINE(m_pos);
-                DBMS_OUTPUT.PUT_LINE(us_id);
-                DBMS_OUTPUT.PUT_LINE(Available_seat);
-                DBMS_OUTPUT.PUT_LINE(allotted_sub);
-                END IF;
                 IF Available_seat > 0 AND allotted_sub IS NULL THEN
                     UPDATE UNI_SUB SET FILLED = (SELECT FILLED FROM UNI_SUB WHERE UNI_SUB_ID = us_id) + 1 WHERE UNI_SUB_ID = us_id;
                     UPDATE MERIT_LIST SET ALLOCATED_TO = us_id WHERE MERIT_POS = m_pos;
+                END IF;
+            END LOOP;
+        END LOOP;
+    END ;
+    '''
+    cursor.execute(query_str)
+    connection.commit()
+
+    query_str = '''
+    DECLARE
+		Available_seat NUMBER;
+		us_id NUMBER;
+		allotted_sub NUMBER;
+
+    BEGIN
+        FOR q_pos IN 1..100
+        LOOP
+            --DBMS_OUTPUT.PUT_LINE(M_POS);
+            FOR INNER_R IN (SELECT PRIORITY_NO, UNI_SUB_ID FROM QUOTA_CHOICE_LIST WHERE QUOTA_POS = q_pos ORDER BY PRIORITY_NO)
+            LOOP
+                -- FOR each priority-no got a uni sub id
+                us_id := INNER_R.UNI_SUB_ID;
+                SELECT QUOTA_CAPASITY- QUOTA_FILLED into Available_seat FROM UNI_SUB WHERE UNI_SUB_ID = us_id;
+                SELECT ALLOCATED_TO into allotted_sub FROM QUOTA_LIST WHERE QUOTA_POS = q_pos;
+                IF Available_seat > 0 AND allotted_sub IS NULL THEN
+                    UPDATE UNI_SUB SET QUOTA_FILLED = (SELECT QUOTA_FILLED FROM UNI_SUB WHERE UNI_SUB_ID = us_id) + 1 WHERE UNI_SUB_ID = us_id;
+                    UPDATE QUOTA_LIST SET ALLOCATED_TO = us_id WHERE QUOTA_POS = q_pos;
                 END IF;
             END LOOP;
         END LOOP;
@@ -307,8 +328,9 @@ def generate_subject_allocation():
 def run_migration():
     connection = pool.acquire()
     cursor = connection.cursor()
-    cursor.execute('UPDATE UNI_SUB SET FILLED = 0')
+    cursor.execute('UPDATE UNI_SUB SET FILLED = 0 , QUOTA_FILLED = 0')
     cursor.execute('UPDATE MERIT_LIST SET ALLOCATED_TO = NULL')
+    cursor.execute('UPDATE QUOTA_LIST SET ALLOCATED_TO = NULL')
     query_str = '''
     DECLARE
 		m_pos NUMBER;
@@ -339,8 +361,41 @@ def run_migration():
     '''
     cursor.execute(query_str)
     connection.commit()
+
+    query_str = '''
+    DECLARE
+		q_pos NUMBER;
+		Available_seat NUMBER;
+		us_id NUMBER;
+		allotted_sub NUMBER;
+
+    BEGIN
+        FOR R IN (SELECT QUOTA_POS, ADMISSION_STATUS FROM QUOTA_LIST ORDER BY QUOTA_POS)
+        LOOP
+            --DBMS_OUTPUT.PUT_LINE(M_POS);
+            IF R.ADMISSION_STATUS = 'Y' THEN
+        q_pos := R.QUOTA_POS;
+            FOR INNER_R IN (SELECT PRIORITY_NO, UNI_SUB_ID FROM QUOTA_CHOICE_LIST WHERE QUOTA_POS = q_pos ORDER BY PRIORITY_NO)
+            LOOP
+                -- FOR each priority-no got a uni sub id
+                us_id := INNER_R.UNI_SUB_ID;
+                SELECT QUOTA_CAPASITY- QUOTA_FILLED into Available_seat FROM UNI_SUB WHERE UNI_SUB_ID = us_id;
+                SELECT ALLOCATED_TO into allotted_sub FROM QUOTA_LIST WHERE QUOTA_POS = q_pos;
+                IF Available_seat > 0 AND allotted_sub IS NULL THEN
+                    UPDATE UNI_SUB SET QUOTA_FILLED = (SELECT QUOTA_FILLED FROM UNI_SUB WHERE UNI_SUB_ID = us_id) + 1 WHERE UNI_SUB_ID = us_id;
+                    UPDATE QUOTA_LIST SET ALLOCATED_TO = us_id WHERE QUOTA_POS = q_pos;
+                END IF;
+            END LOOP;
+            END IF;
+        END LOOP;
+    END ;
+    '''
+    cursor.execute(query_str)
+    connection.commit()
     flash('Migration Run is done')
     return redirect(url_for('index'))
+
+
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template('page_not_found.html'), 404
