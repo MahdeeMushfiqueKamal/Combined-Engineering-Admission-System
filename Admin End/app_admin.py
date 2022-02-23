@@ -257,6 +257,23 @@ def generate_merit_list():
     flash('Merit List has been generated')
     return redirect(url_for('index'))
 
+@app.route('/admin/delete_form', methods=['POST'])
+def delete_form():
+    print("Delete form")
+    connection = pool.acquire()
+    cursor = connection.cursor()
+
+    delete_id = request.form['delete_form']
+
+    query_str = 'DELETE FROM EXAMINEE WHERE EXAMINEE_ID = ' + delete_id
+    print(query_str)
+    cursor.execute(query_str)
+    connection.commit()
+
+    flash_msg = 'Successfully deleted Examinee ID = ' + delete_id
+    flash(flash_msg)
+    return redirect(url_for('index'))
+
 @app.route('/admin/mark_from_csv',methods=['POST'])
 def mark_from_csv():
     connection = pool.acquire()

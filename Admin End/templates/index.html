@@ -215,6 +215,20 @@
 
             </div>
 
+            <div class="col-md-4">
+                <br><br>
+                <form action = "{{url_for('delete_form')}}"  method = "post">
+                    <h3> Delete a Form </h3>
+                    <div class="form-group">
+                        <label for="delete_form">Examinee ID: </label>
+                        <input type="text" class="delete_form" name="delete_form" id="delete_form">
+                    </div>
+
+                    <br>    <button type="submit" class="btn btn-primary">Delete Form</button>
+                </form>
+
+            </div>
+
         </div>
         
     </div>
