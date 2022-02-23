@@ -34,9 +34,42 @@ def start_pool():
 app = Flask(__name__)
 app.secret_key  = '36610328caf5968c435a13abc5d70b4d'
 
+@app.route('/logout',methods=['GET'])
+def logout():
+    session.pop('admin_id',None)
+    flash('Successfully Logged Out')
+    return redirect(url_for('login'))
+
+@app.route('/login',methods=['POST','GET'])
+def login():
+    if request.method == 'GET':
+        flash_msg = get_flashed_messages()
+        return render_template('login.html',flash_msg=flash_msg)
+    elif request.method == 'POST':
+        print(request.form)
+        admin_id = request.form['ADMIN_ID'] 
+        password = request.form['PASS'] 
+        password = hashlib.sha256(password.encode('utf-8')).hexdigest()
+        connection = pool.acquire()
+        cursor = connection.cursor()
+        query_str = 'SELECT * FROM ADMIN_LOGIN WHERE ADMIN_ID = \'' + admin_id +'\' AND PASSWORD = \''+ password +'\''
+        print(query_str)
+        cursor.execute(query_str)
+        if len(cursor.fetchall()) == 1:
+            flash('Successfully Logged in')
+            session['admin_id'] = admin_id
+            flash('Logged in successfully')
+            return redirect(url_for('index'))
+        else:
+            flash('Incorrect Examinee Id or Password, Try again')
+            return redirect(url_for('login'))
+
 # Display a welcome message on the 'home' page
 @app.route('/')
 def index():
+    if 'admin_id' not in session:
+        flash('You need to login before entering index')
+        return redirect(url_for('login'))
     flash_msg = get_flashed_messages()
     connection = pool.acquire()
     cursor = connection.cursor()
