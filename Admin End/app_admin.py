@@ -1,8 +1,5 @@
 import os,sys,hashlib,cx_Oracle
-from sqlite3 import Cursor
-from django.db import connection
 from flask import *
-from matplotlib.pyplot import connect
 
 if sys.platform.startswith("darwin"):
     cx_Oracle.init_oracle_client(lib_dir=os.environ.get("HOME")+"/instantclient_19_3")
@@ -294,6 +291,27 @@ def mark_from_csv():
             cursor.execute(query_str)
     connection.commit()
     flash('Marks are updated from CSV File')
+    return redirect(url_for('index'))
+
+
+@app.route('/update_admission',methods=['POST'])
+def update_admission():
+    print('Process Admission Called')
+    connection = pool.acquire()
+    cursor = connection.cursor()
+    position = request.form['POSITION']
+    task = request.form['task']
+    print(task,position)
+    if task == '1':
+        cursor.execute('UPDATE MERIT_LIST SET ADMISSION_STATUS = \'Y\' WHERE MERIT_POS = :pos',[position])
+    elif task == '2': 
+        cursor.execute('UPDATE MERIT_LIST SET ADMISSION_STATUS = \'N\' WHERE MERIT_POS = :pos',[position])
+    elif task == '3':
+        cursor.execute('UPDATE QUOTA_LIST SET ADMISSION_STATUS = \'Y\' WHERE QUOTA_POS = :pos',[position])
+    elif task == '4':
+        cursor.execute('UPDATE QUOTA_LIST SET ADMISSION_STATUS = \'N\' WHERE QUOTA_POS = :pos',[position])
+    connection.commit()
+    flash('Admission status Updated')
     return redirect(url_for('index'))
 
 @app.route('/admin/1st_generate_subject_allocation')

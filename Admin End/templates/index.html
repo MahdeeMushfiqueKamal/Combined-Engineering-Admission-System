@@ -171,6 +171,28 @@
             </div>
             
             <div class="col-md-4">
+                <br><br> <h3> Confirm / Cancel Admission </h3>
+                <form action = "{{url_for('update_admission')}}" method = "post">
+                    <div class="form-group">
+                        <label for="POSITION">Merit/Quota position: </label>
+                        <input type="text" class="form-control" name="POSITION" id="POSITION" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="task">  Task: </label>
+                        <select class="form-control" id="task" name="task">                          
+                        <option value = "1" default>  Confirm Admission </option>
+                        <option value = "2">Cancel Admission </option>
+                        <option value = "3"> Confirm Quota Admission </option>
+                        <option value = "4"> Cancel Quota Admission </option>
+                        </select>
+                    </div>
+                    <br>    <button type="submit" class="btn btn-primary">Submit </button>
+                </form>
+            </div>
+            
+
+
+            <div class="col-md-4">
                 <br><br>
                 <h3> Generate Subject Allocation for 1st Run </h3>
                 <p>Generate general and quota merit list. </p>

@@ -100,6 +100,14 @@ exception when others then
 end;     
 /
 
+begin
+execute immediate 'drop table ADMIN_LOGIN';
+exception when others then
+	if sqlcode <> -942 then
+	raise;
+	end if;
+end;     
+/
 -- create tables
 
 CREATE TABLE UNIVERSITY(
@@ -189,6 +197,13 @@ CREATE TABLE QUOTA_CHOICE_LIST(
 	PRIORITY_NO INTEGER CHECK (PRIORITY_NO >= 1 AND PRIORITY_NO <= 10),
 	UNI_SUB_ID INTEGER REFERENCES UNI_SUB(UNI_SUB_ID)
 );
+
+CREATE TABLE ADMIN_LOGIN(
+	ADMIN_ID VARCHAR2(5),
+	PASSWORD VARCHAR(64)
+);
+
+INSERT INTO ADMIN_LOGIN(ADMIN_ID,PASSWORD) VALUES('admin','03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4');
 -- populate with necessary data
 
 INSERT INTO GLOBAL_DATA(ENTRY_NO,ADMIN_MESSAGE) VALUES(1,'Firstly, an applicant shall have to submit a properly filled online application form via the online submission system available through the website within the stipuleted time period.;;Follow Covid Policy in Exam Hall and Bring Admit Card;;Provide Subject Choice List within date');
