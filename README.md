@@ -1,7 +1,7 @@
 
 
 
-# CSE 216 - Database Project
+# CSE 216 - Database Project - Combined Engineering Admission System
 
 **Members:**
 
@@ -9,45 +9,34 @@
 
 1805058 - [Aroma Hoque](https://github.com/aroma058)
 
+## Project Proposal - [Link](Project_Proposal.md)
 
-## Combined Engineering Admission System
+## Run in your system
 
-**Types of Users:** 
+1. Installations:
 
+Install Flask and other python dependencies. Download Oracle instant client and set the path like this 
+```
+elif sys.platform.startswith("win32"):
+    cx_Oracle.init_oracle_client(lib_dir=r"C:\instantclient_21_3")
+``` 
+on app_admin.py and app_user.py
 
+2. User Creation and Connection:
 
-* Regular Students
-* University Admission Committee (For Each University)
-* System Admin
+Go to directory "supporting functions"
+- Open "0.initial sqls.sql." Follow the instruction to create user C##CEAS_ADMIN and C##CEAS_USER. Grant them appropriate access. 
+- Run 1.DDL.sql, 2.populate_table.sql before running the apps and 3.choice_ lists.sql after generating merit list as dummy data. This contains randomly generated data of 32,000 examinee and 50,000 entries in choice list. 
+- Add two environment variables, `PYTHON_DB_PASSWORD = 1234`, `'PYTHON_CONNECTSTRING= 127.0.0.1/orcl`. or hardcode values in `start_pool()` function of both app_user.py and app_admin.py on these lines. 
+```
+pool = cx_Oracle.SessionPool(user="C##CEAS_ADMIN",password=os.environ.get('PYTHON_DB_PASSWORD'),
+dsn=os.environ.get('PYTHON_CONNECTSTRING'), min=pool_min,max=pool_max,increment=pool_inc,threaded=True,getmode=pool_gmd,sessionCallback=init_session)
+```
 
-**States of the system:**
+3. Run Both Apps: 
 
-
-
-1. Registration Period
-2. Before Exam
-3. Exam Result
-4. Apply Period
-5. Admission Period + migration (Several Times)
-
-The states of the Website will be selected by the system admin. 
-
-**Features:**
-
-
-
-* **Registration Period:** Students will register with the HSC roll and registration Number. Will get a login credential after registration. Will see a dashboard after logging in. Students will select an exam center, based on availability. 
-* **Before Exam:** Students will be able to see the exam center, examination time and date. 
-* **Exam Result:** Students will be able to see marks(Physics, Chemistry, Math) and merit position. They will be notified whether they are available for applying. 
-* **Apply Period:** Students will provide a choice of (Subject, University) list. Example: 1:(CSE,BUET), 2:(EEE,BUET), 3:(ME,BUET), 4:(CSE-KUET), 5:(CSE-RUET), 6:(CSE-CUET) 
-
-    Will be disqualified if not applied within time. 
-
-* **Quota System:** There will be Tribal_Hill_Tracts quota, certain departments in every university will have a selected number of quota seats .Those who will be eligible for quota can either submit their choice list for merit position or quota position. 
-* **Admission Period:** There will be a date to get admitted onto a varsity. They will submit their papers to the university committee. University will confirm admission.
-* Students can stop migration. Students and admitted university both will have to confirm 'stop migration request'.
-* **Migration:** There will be migration on certain dates. Migration period and migration control will be at the hands of admins. 
-
+- `python "Admin End"/app_admin.py`
+- `python "User End"/app_user.py`
 
 # Entity Relation Diagram
 ![erd](updated_erd.jpeg)

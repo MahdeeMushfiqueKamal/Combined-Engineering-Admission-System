@@ -1,8 +1,6 @@
-from fileinput import filename
 import os,sys,hashlib,cx_Oracle
 from pathlib import Path
 from flask import *
-from matplotlib.style import available
 
 if sys.platform.startswith("darwin"):
     cx_Oracle.init_oracle_client(lib_dir=os.environ.get("HOME")+"/instantclient_19_3")

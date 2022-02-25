@@ -335,6 +335,9 @@ def update_admission():
 def generate_subject_allocation():
     connection = pool.acquire()
     cursor = connection.cursor()
+    cursor.execute('UPDATE UNI_SUB SET FILLED = 0 , QUOTA_FILLED = 0')
+    cursor.execute('UPDATE MERIT_LIST SET ALLOCATED_TO = NULL')
+    cursor.execute('UPDATE QUOTA_LIST SET ALLOCATED_TO = NULL')
     query_str = '''
     DECLARE
         Available_seat NUMBER;
